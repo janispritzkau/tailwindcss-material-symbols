@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/tailwindcss-material-symbols/tsconfig.json"
+    }
+  ]
+}

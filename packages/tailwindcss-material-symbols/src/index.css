@@ -1,0 +1,80 @@
+@theme {
+  --icon-font-outlined: "Material Symbols Outlined";
+  --icon-font-rounded: "Material Symbols Rounded";
+  --icon-font-sharp: "Material Symbols Sharp";
+
+  --icon-size-sm: --spacing(5);
+  --icon-size-md: --spacing(6);
+  --icon-size-lg: --spacing(10);
+  --icon-size-xl: --spacing(12);
+
+  --icon-opsz-sm: 20;
+  --icon-opsz-md: 24;
+  --icon-opsz-lg: 40;
+  --icon-opsz-xl: 48;
+
+  --icon-wght-thin: 100;
+  --icon-wght-extralight: 200;
+  --icon-wght-light: 300;
+  --icon-wght-normal: 400;
+  --icon-wght-medium: 500;
+  --icon-wght-semibold: 600;
+  --icon-wght-bold: 700;
+
+  --icon-fill-fill: 1;
+  --icon-fill-no-fill: 0;
+
+  --icon-grad-on-light: 0;
+  --icon-grad-on-dark: -25;
+  --icon-grad-high: 200;
+
+  --default-icon-font: var(--icon-font-outlined);
+  --default-icon-size: var(--icon-size-md);
+  --default-icon-wght: var(--icon-wght-normal);
+  --default-icon-fill: var(--icon-fill-no-fill);
+  --default-icon-grad: var(--icon-grad-on-light);
+}
+
+@utility icon {
+  box-sizing: content-box;
+  direction: ltr;
+  display: inline-block;
+  font-family: var(--default-icon-font);
+  font-size: var(--default-icon-size);
+  font-style: normal;
+  line-height: 1;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  font-variation-settings:
+    "opsz" var(--icon-opsz, var(--default-icon-opsz)),
+    "wght" var(--icon-wght, var(--default-icon-wght)),
+    "FILL" var(--icon-fill, var(--default-icon-fill)),
+    "GRAD" var(--icon-grad, var(--default-icon-grad));
+
+  --tw-content: var(--icon-symbol); /* if applied on before or after variant */
+
+  &::before {
+    content: var(--icon-symbol);
+  }
+}
+
+@utility icon-symbol-* {
+  --icon-symbol: --value(--icon-symbol-*, [*]);
+}
+
+@utility icon-* {
+  font-family: --value(--icon-font-*);
+  --icon-opsz: --value(--icon-opsz-*);
+  --icon-wght: --value(--icon-wght-*);
+  --icon-fill: --value(--icon-fill-*);
+  --icon-grad: --value(--icon-grad-*);
+}
+
+@utility icon-* {
+  font-size: --spacing(--value(integer));
+  font-size: --value(--icon-size-*);
+  line-height: --spacing(--modifier(integer));
+  line-height: --modifier([length], [*]);
+}

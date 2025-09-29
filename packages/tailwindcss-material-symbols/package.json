@@ -1,0 +1,51 @@
+{
+  "name": "@janispritzkau/tailwindcss-material-symbols",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/janispritzkau/tailwindcss-material-symbols.git"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "node": "./dist/index.js",
+      "style": "./dist/index.css",
+      "types": "./dist/index.d.ts"
+    },
+    "./subset": {
+      "import": "./dist/subset.js",
+      "types": "./dist/subset.d.ts"
+    },
+    "./vite": {
+      "import": "./dist/vite.js",
+      "types": "./dist/vite.d.ts"
+    },
+    "./full.css": "./full.css"
+  },
+  "files": [
+    "assets",
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "node ../../scripts/update-material-symbols.ts",
+    "build": "tsdown"
+  },
+  "peerDependencies": {
+    "tailwindcss": "^3.4.17 || ^4.1.13",
+    "vite": "^7.1.7"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "subset-font": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/subset-font": "^2.3.0",
+    "lightningcss": "^1.30.2",
+    "tailwindcss": "^3.4.17",
+    "vite": "^7.1.7"
+  }
+}
