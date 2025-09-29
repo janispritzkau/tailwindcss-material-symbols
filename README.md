@@ -1,0 +1,1 @@
+# Material Symbols for TailwindCSS

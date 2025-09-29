@@ -1,0 +1,68 @@
+@import "./generated/codepoints.css";
+
+@theme {
+  --icon-font-outlined: "Material Symbols Outlined";
+  --icon-font-rounded: "Material Symbols Rounded";
+  --icon-font-sharp: "Material Symbols Sharp";
+
+  --icon-opsz-xs: 20;
+  --icon-opsz-sm: 20;
+  --icon-opsz-md: 24;
+  --icon-opsz-lg: 40;
+  --icon-opsz-xl: 48;
+
+  --icon-wght-thin: 100;
+  --icon-wght-extralight: 200;
+  --icon-wght-light: 300;
+  --icon-wght-normal: 400;
+  --icon-wght-medium: 500;
+  --icon-wght-semibold: 600;
+  --icon-wght-bold: 700;
+
+  --icon-fill-fill: 1;
+  --icon-fill-no-fill: 0;
+
+  --icon-grad-on-light: 0;
+  --icon-grad-on-dark: -25;
+}
+
+@layer base {
+  [class^="icon-symbol-"],
+  [class~=" icon-symbol-"] {
+    @apply icon;
+  }
+}
+
+@utility icon {
+  box-sizing: content-box;
+  direction: ltr;
+  display: inline-block;
+  font-family: var(--font-icon, var(--icon-font-outlined));
+  font-size: calc(var(--icon-opsz, --icon-opsz-md) * 1px);
+  font-style: normal;
+  line-height: 1;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  font-variation-settings:
+    "opsz" var(--icon-opsz, --icon-opsz-md),
+    "wght" var(--icon-wght, --icon-wght-normal),
+    "FILL" var(--icon-fill, --icon-fill-no-fill),
+    "GRAD" var(--icon-grad, --icon-grad-on-light);
+}
+
+@utility icon-* {
+  --icon-font: --value(--icon-font-*);
+  --icon-opsz: --value(--icon-opsz-*);
+  --icon-wght: --value(--icon-wght-*);
+  --icon-fill: --value(--icon-fill-*);
+  --icon-grad: --value(--icon-grad-*);
+  line-height: --spacing(--modifier(integer));
+}
+
+@utility icon-symbol-* {
+  &::after {
+    content: --value(--icon-symbol-*, [*]);
+  }
+}
