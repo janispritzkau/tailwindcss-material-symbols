@@ -4105,6 +4105,4 @@ export const codepoints = {
   "zoom_out_map": "\ue56b",
 } as const;
 
-export type IconSymbol = keyof typeof codepoints;
-
 export default codepoints;

@@ -1,11 +1,13 @@
-@import "./generated/codepoints.css";
-
 @theme {
   --icon-font-outlined: "Material Symbols Outlined";
   --icon-font-rounded: "Material Symbols Rounded";
   --icon-font-sharp: "Material Symbols Sharp";
 
-  --icon-opsz-xs: 20;
+  --icon-size-sm: --spacing(5);
+  --icon-size-md: --spacing(6);
+  --icon-size-lg: --spacing(10);
+  --icon-size-xl: --spacing(12);
+
   --icon-opsz-sm: 20;
   --icon-opsz-md: 24;
   --icon-opsz-lg: 40;
@@ -24,21 +26,21 @@
 
   --icon-grad-on-light: 0;
   --icon-grad-on-dark: -25;
-}
+  --icon-grad-high: 200;
 
-@layer base {
-  [class^="icon-symbol-"],
-  [class~=" icon-symbol-"] {
-    @apply icon;
-  }
+  --default-icon-font: var(--icon-font-outlined);
+  --default-icon-size: var(--icon-size-md);
+  --default-icon-wght: var(--icon-wght-normal);
+  --default-icon-fill: var(--icon-fill-no-fill);
+  --default-icon-grad: var(--icon-grad-on-light);
 }
 
 @utility icon {
   box-sizing: content-box;
   direction: ltr;
   display: inline-block;
-  font-family: var(--font-icon, var(--icon-font-outlined));
-  font-size: calc(var(--icon-opsz, --icon-opsz-md) * 1px);
+  font-family: var(--default-icon-font);
+  font-size: var(--default-icon-size);
   font-style: normal;
   line-height: 1;
   text-rendering: optimizeLegibility;
@@ -46,23 +48,33 @@
   white-space: nowrap;
   word-wrap: normal;
   font-variation-settings:
-    "opsz" var(--icon-opsz, --icon-opsz-md),
-    "wght" var(--icon-wght, --icon-wght-normal),
-    "FILL" var(--icon-fill, --icon-fill-no-fill),
-    "GRAD" var(--icon-grad, --icon-grad-on-light);
+    "opsz" var(--icon-opsz, var(--default-icon-opsz)),
+    "wght" var(--icon-wght, var(--default-icon-wght)),
+    "FILL" var(--icon-fill, var(--default-icon-fill)),
+    "GRAD" var(--icon-grad, var(--default-icon-grad));
+
+  --tw-content: var(--icon-symbol); /* if applied on before or after variant */
+
+  &::before {
+    content: var(--icon-symbol);
+  }
+}
+
+@utility icon-symbol-* {
+  --icon-symbol: --value(--icon-symbol-*, [*]);
 }
 
 @utility icon-* {
-  --icon-font: --value(--icon-font-*);
+  font-family: --value(--icon-font-*);
   --icon-opsz: --value(--icon-opsz-*);
   --icon-wght: --value(--icon-wght-*);
   --icon-fill: --value(--icon-fill-*);
   --icon-grad: --value(--icon-grad-*);
-  line-height: --spacing(--modifier(integer));
 }
 
-@utility icon-symbol-* {
-  &::after {
-    content: --value(--icon-symbol-*, [*]);
-  }
+@utility icon-* {
+  font-size: --spacing(--value(integer));
+  font-size: --value(--icon-size-*);
+  line-height: --spacing(--modifier(integer));
+  line-height: --modifier([length], [*]);
 }

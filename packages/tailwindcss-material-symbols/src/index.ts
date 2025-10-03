@@ -1,15 +1,16 @@
 import plugin from "tailwindcss/plugin";
 import codepoints from "./generated/codepoints";
+import defaultTheme from "tailwindcss/defaultTheme";
 
 const materialSymbols = plugin(
   ({ addUtilities, matchUtilities, theme }) => {
     addUtilities({
-      ".icon, [class^='icon-symbol'], [class*=' icon-symbol']": {
+      ".icon": {
         boxSizing: "content-box",
         direction: "ltr",
         display: "inline-block",
-        fontFamily: "var(--icon-font, 'Material Symbols Outlined')",
-        fontSize: "calc(var(--icon-opsz, 20) * 1px)",
+        fontFamily: theme("icon.font.DEFAULT"),
+        fontSize: theme("icon.size.DEFAULT.fontSize"),
         fontStyle: "normal",
         lineHeight: "1",
         textRendering: "optimizeLegibility",
@@ -17,44 +18,78 @@ const materialSymbols = plugin(
         whiteSpace: "nowrap",
         wordWrap: "normal",
         fontVariationSettings: [
-          '"FILL" var(--icon-fill, 0)',
-          '"wght" var(--icon-wght, 400)',
-          '"GRAD" var(--icon-grad, 0)',
-          '"opsz" var(--icon-opsz, 24)',
+          `"FILL" var(--icon-fill, ${theme("icon.fill.DEFAULT")})`,
+          `"wght" var(--icon-wght, ${theme("icon.wght.DEFAULT")})`,
+          `"GRAD" var(--icon-grad, ${theme("icon.grad.DEFAULT")})`,
+          `"opsz" var(--icon-opsz, ${theme("icon.size.DEFAULT.opsz")})`,
         ].join(", "),
+
+        "--tw-content": "var(--icon-symbol)", // if applied on before or after variant
+
+        "&::before": {
+          content: "var(--icon-symbol)",
+        },
       },
     });
 
-    matchUtilities({ icon: (value) => ({ "--icon-font": value }) }, { values: theme("icon.font") });
-    matchUtilities({ icon: (value) => ({ "--icon-opsz": value }) }, { values: theme("icon.opsz") });
-    matchUtilities({ icon: (value) => ({ "--icon-wght": value }) }, { values: theme("icon.wght") });
-    matchUtilities({ icon: (value) => ({ "--icon-fill": value }) }, { values: theme("icon.fill") });
-    matchUtilities({ icon: (value) => ({ "--icon-grad": value }) }, { values: theme("icon.grad") });
+    matchUtilities(
+      { "icon-symbol": (value) => ({ "--icon-symbol": `"${value}"` }) },
+      { values: codepoints },
+    );
+
+    matchUtilities(
+      { icon: (value) => ({ fontFamily: value }) },
+      { values: withoutDefault(theme("icon.font")!) },
+    );
+
+    matchUtilities(
+      { icon: (value) => ({ "--icon-wght": value }) },
+      { values: withoutDefault(theme("icon.wght")!) },
+    );
+
+    matchUtilities(
+      { icon: (value) => ({ "--icon-fill": value }) },
+      { values: withoutDefault(theme("icon.fill")!) },
+    );
+
+    matchUtilities(
+      { icon: (value) => ({ "--icon-grad": value }) },
+      { values: withoutDefault(theme("icon.grad")!) },
+    );
 
     matchUtilities(
       {
-        "icon-symbol": (value) => ({
-          "&::before": { content: `"${value}"` },
+        icon: (value, { modifier }) => ({
+          fontSize: value.fontSize,
+          ...(modifier != null ? { lineHeight: modifier } : {}),
+          "--icon-opsz": value.opsz,
         }),
       },
-      { values: codepoints },
+      {
+        type: "length",
+        values: withoutDefault(theme("icon.size")!),
+        modifiers: theme("lineHeight"),
+      },
     );
   },
   {
     theme: {
       icon: {
         font: {
+          DEFAULT: "'Material Symbols Outlined'",
           outlined: "'Material Symbols Outlined'",
           rounded: "'Material Symbols Rounded'",
           sharp: "'Material Symbols Sharp'",
         },
-        opsz: {
-          sm: "20",
-          md: "24",
-          lg: "40",
-          xl: "48",
+        size: {
+          DEFAULT: { fontSize: defaultTheme.spacing[6], opsz: "24" },
+          sm: { fontSize: defaultTheme.spacing[5], opsz: "20" },
+          md: { fontSize: defaultTheme.spacing[6], opsz: "24" },
+          lg: { fontSize: defaultTheme.spacing[10], opsz: "40" },
+          xl: { fontSize: defaultTheme.spacing[12], opsz: "48" },
         },
         wght: {
+          DEFAULT: "400",
           thin: "100",
           extralight: "200",
           light: "300",
@@ -64,16 +99,24 @@ const materialSymbols = plugin(
           bold: "700",
         },
         fill: {
+          DEFAULT: "0",
           fill: "1",
           "no-fill": "0",
         },
         grad: {
+          DEFAULT: "0",
           "on-light": "0",
           "on-dark": "-25",
+          high: "200",
         },
       },
     },
   },
 );
+
+function withoutDefault<T extends Record<string, unknown>>(obj: T): Omit<T, "DEFAULT"> {
+  const { DEFAULT: _, ...rest } = obj;
+  return rest;
+}
 
 export default materialSymbols;
