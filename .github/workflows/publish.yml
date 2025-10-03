@@ -18,10 +18,10 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-          scope: '@janispritzkau'
-          cache: 'pnpm'
+          scope: "@janispritzkau"
+          cache: "pnpm"
       - run: pnpm install
-      - run: pnpm build:plugin
-      - run: pnpm publish:plugin
+      - run: pnpm build
+      - run: pnpm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
