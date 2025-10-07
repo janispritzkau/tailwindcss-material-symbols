@@ -23,8 +23,11 @@
     "./full.css": "./full.css"
   },
   "files": [
-    "assets",
-    "dist"
+    "dist",
+    "full.css",
+    "material-symbols-outlined.woff2",
+    "material-symbols-rounded.woff2",
+    "material-symbols-sharp.woff2"
   ],
   "scripts": {
     "prebuild": "node ../../scripts/update-material-symbols.ts",
