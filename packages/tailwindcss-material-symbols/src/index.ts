@@ -66,10 +66,22 @@ const materialSymbols = plugin(
         }),
       },
       {
-        type: "length",
-        values: withoutDefault(theme("icon.size")!),
+        type: ["lookup", "number", "length"],
+        values: {
+          ...withoutDefault(theme("icon.size")!),
+          ...Object.fromEntries(
+            Object.entries(theme("spacing")!)
+              .filter(([key]) => !Number.isNaN(Number(key)))
+              .map(([key, val]) => [key, { fontSize: val, opsz: (+key * 4).toString() }]),
+          ),
+        },
         modifiers: theme("lineHeight"),
       },
+    );
+
+    matchUtilities(
+      { "icon-opsz": (value) => ({ "--icon-opsz": value.opsz }) },
+      { values: withoutDefault(theme("icon.size")!) },
     );
   },
   {

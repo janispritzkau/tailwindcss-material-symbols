@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prebuild": "tsx ./scripts/update-material-symbols.ts",
     "build": "pnpm run \"/^(build-only|type-check)$/\"",
     "build-only": "pnpm --filter ./packages/tailwindcss-material-symbols build",
     "type-check": "tsc --build",
@@ -11,7 +12,7 @@
     "publish:package": "pnpm --filter ./packages/tailwindcss-material-symbols publish --provenance --access public"
   },
   "devDependencies": {
-    "@types/node": "^24.6.2",
+    "@types/node": "^22.18.8",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tsdown": "^0.15.6",

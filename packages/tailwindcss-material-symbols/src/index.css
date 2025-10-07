@@ -66,15 +66,17 @@
 
 @utility icon-* {
   font-family: --value(--icon-font-*);
+  font-size: --spacing(--value(integer));
+  font-size: --value(--icon-size-*, [length], [*]);
+  line-height: --spacing(--modifier(integer));
+  line-height: --modifier([length], [*]);
   --icon-opsz: --value(--icon-opsz-*);
+  --icon-opsz: calc(--value(integer) * 4);
   --icon-wght: --value(--icon-wght-*);
   --icon-fill: --value(--icon-fill-*);
   --icon-grad: --value(--icon-grad-*);
 }
 
-@utility icon-* {
-  font-size: --spacing(--value(integer));
-  font-size: --value(--icon-size-*);
-  line-height: --spacing(--modifier(integer));
-  line-height: --modifier([length], [*]);
+@utility icon-opsz-* {
+  --icon-opsz: --value(--icon-opsz-*);
 }
