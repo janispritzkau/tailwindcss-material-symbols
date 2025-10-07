@@ -8,7 +8,7 @@
     "type-check": "tsc --build",
     "format": "prettier --write **/src/**",
     "update:material-symbols": "tsx ./scripts/update-material-symbols.ts",
-    "publish": "pnpm --filter ./packages/tailwindcss-material-symbols publish --access public"
+    "publish:package": "pnpm --filter ./packages/tailwindcss-material-symbols publish --access public"
   },
   "devDependencies": {
     "@types/node": "^24.6.2",
