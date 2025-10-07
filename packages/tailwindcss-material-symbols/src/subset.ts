@@ -40,14 +40,23 @@ export default async function subsetMaterialSymbols(
   ) as Record<string, "outlined" | "rounded" | "sharp">;
 
   const usedFont = new Set(
-    Array.from(css.matchAll(FONT_REGEX), (m) => fontNames[m.groups!.value!]).filter(
-      (x) => x != null,
-    ),
+    Array.from(
+      css.matchAll(FONT_REGEX),
+      (m) => fontNames[m.groups!.value4! ?? m.groups!.value3!],
+    ).filter((x) => x != null),
   );
-  const usedOpsz = new Set(Array.from(css.matchAll(OPSZ_REGEX), (m) => Number(m.groups!.value!)));
-  const usedWght = new Set(Array.from(css.matchAll(WGHT_REGEX), (m) => Number(m.groups!.value!)));
-  const usedGrad = new Set(Array.from(css.matchAll(GRAD_REGEX), (m) => Number(m.groups!.value!)));
-  const usedFill = new Set(Array.from(css.matchAll(FILL_REGEX), (m) => Number(m.groups!.value!)));
+  const usedOpsz = new Set(
+    Array.from(css.matchAll(OPSZ_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
+  );
+  const usedWght = new Set(
+    Array.from(css.matchAll(WGHT_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
+  );
+  const usedGrad = new Set(
+    Array.from(css.matchAll(GRAD_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
+  );
+  const usedFill = new Set(
+    Array.from(css.matchAll(FILL_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
+  );
 
   usedFont.add(defaults.font);
   usedOpsz.add(defaults.opsz);
@@ -58,9 +67,11 @@ export default async function subsetMaterialSymbols(
   const usedSymbols = new Map(
     Array.from(
       css.matchAll(SYMBOLS_REGEX),
-      (m) => [m.groups!.key!, m.groups!.value!] as const,
+      (m) => [m.groups!.key4! ?? m.groups!.key3!, m.groups!.value4! ?? m.groups!.value3!] as const,
     ).filter((v): v is [keyof typeof codepoints, string] => v[0] in codepoints),
   );
+
+  console.log({ usedFont, usedOpsz, usedWght, usedGrad, usedFill, usedSymbols });
 
   const content = Array.from(usedSymbols.values()).join("");
 
@@ -103,19 +114,19 @@ const WGHT_VARIANTS = [
 const GRAD_VARIANTS = ["on-dark", "on-light", "high"] as const;
 const FILL_VARIANTS = ["no-fill", "fill"] as const;
 
-const FONT_REGEX_V3 = `[\\.:]icon-(${FONT_VARIANTS.join("|")})[^{]*\\{(\\s*|[^}]+;\\s*)font-family:\\s*(?!var\\()['"]?(?<value>[^'";}]+)`;
-const OPSZ_REGEX_V3 = `(?<!\\w|-)--icon-opsz:\\s*(?<value>-?\\d+)`;
-const WGHT_REGEX_V3 = `(?<!\\w|-)--icon-wght:\\s*(?<value>-?\\d+)`;
-const GRAD_REGEX_V3 = `(?<!\\w|-)--icon-grad:\\s*(?<value>-?\\d+)`;
-const FILL_REGEX_V3 = `(?<!\\w|-)--icon-fill:\\s*(?<value>-?\\d+)`;
-const SYMBOLS_REGEX_V3 = `[\\.:]icon-symbol-(?<key>\\w+)[^{]*\\{(\\s*|[^}]+;\\s*)--icon-symbol:\\s*(?!var\\()['"]?(?<value>[^'";}]+)`;
+const FONT_REGEX_V3 = `[\\.:]icon-(${FONT_VARIANTS.join("|")})[^{]*\\{(\\s*|[^}]+;\\s*)font-family:\\s*(?!var\\()['"]?(?<value3>[^'";}]+)`;
+const OPSZ_REGEX_V3 = `(?<!\\w|-)--icon-opsz:\\s*(?<value3>-?\\d+)`;
+const WGHT_REGEX_V3 = `(?<!\\w|-)--icon-wght:\\s*(?<value3>-?\\d+)`;
+const GRAD_REGEX_V3 = `(?<!\\w|-)--icon-grad:\\s*(?<value3>-?\\d+)`;
+const FILL_REGEX_V3 = `(?<!\\w|-)--icon-fill:\\s*(?<value3>-?\\d+)`;
+const SYMBOLS_REGEX_V3 = `[\\.:]icon-symbol-(?<key3>\\w+)[^{]*\\{(\\s*|[^}]+;\\s*)--icon-symbol:\\s*(?!var\\()['"]?(?<value3>[^'";}]+)`;
 
-const FONT_REGEX_V4 = `(?<!\\w|-)--icon-font-(${FONT_VARIANTS.join("|")}):\\s*['"]?(?<value>[^'";}]+)`;
-const OPSZ_REGEX_V4 = `(?<!\\w|-)--icon-opsz-(${OPSZ_VARIANTS.join("|")}):\\s*(?<value>-?\\d+)`;
-const WGHT_REGEX_V4 = `(?<!\\w|-)--icon-wght-(${WGHT_VARIANTS.join("|")}):\\s*(?<value>-?\\d+)`;
-const GRAD_REGEX_V4 = `(?<!\\w|-)--icon-grad-(${GRAD_VARIANTS.join("|")}):\\s*(?<value>-?\\d+)`;
-const FILL_REGEX_V4 = `(?<!\\w|-)--icon-fill-(${FILL_VARIANTS.join("|")}):\\s*(?<value>-?\\d+)`;
-const SYMBOLS_REGEX_V4 = `(?<!\\w|-)--icon-symbol-(?<key>\\w+):\\s*['"]?(?<value>[^'";}]+)`;
+const FONT_REGEX_V4 = `(?<!\\w|-)--icon-font-(${FONT_VARIANTS.join("|")}):\\s*['"]?(?<value4>[^'";}]+)`;
+const OPSZ_REGEX_V4 = `(?<!\\w|-)--icon-opsz-(${OPSZ_VARIANTS.join("|")}):\\s*(?<value4>-?\\d+)`;
+const WGHT_REGEX_V4 = `(?<!\\w|-)--icon-wght-(${WGHT_VARIANTS.join("|")}):\\s*(?<value4>-?\\d+)`;
+const GRAD_REGEX_V4 = `(?<!\\w|-)--icon-grad-(${GRAD_VARIANTS.join("|")}):\\s*(?<value4>-?\\d+)`;
+const FILL_REGEX_V4 = `(?<!\\w|-)--icon-fill-(${FILL_VARIANTS.join("|")}):\\s*(?<value4>-?\\d+)`;
+const SYMBOLS_REGEX_V4 = `(?<!\\w|-)--icon-symbol-(?<key4>\\w+):\\s*['"]?(?<value4>[^'";}]+)`;
 
 const FONT_REGEX = new RegExp(`${FONT_REGEX_V3}|${FONT_REGEX_V4}`, "g");
 const OPSZ_REGEX = new RegExp(`${OPSZ_REGEX_V3}|${OPSZ_REGEX_V4}`, "g");
