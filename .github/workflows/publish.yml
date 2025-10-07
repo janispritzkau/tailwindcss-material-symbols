@@ -23,6 +23,7 @@ jobs:
           registry-url: https://registry.npmjs.org
           scope: "@janispritzkau"
           cache: "pnpm"
+      - run: pnpm add -g npm@latest
       - run: pnpm install
       - run: pnpm build
       - run: pnpm publish:package
