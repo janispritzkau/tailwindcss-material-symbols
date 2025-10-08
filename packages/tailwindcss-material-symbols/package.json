@@ -1,11 +1,25 @@
 {
   "name": "@janispritzkau/tailwindcss-material-symbols",
   "version": "0.0.5",
-  "license": "MIT",
+  "description": "Easy-to-use, production-ready integration of Material Symbols for Tailwind CSS",
+  "keywords": [
+    "material-symbols",
+    "tailwindcss",
+    "tailwind",
+    "plugin",
+    "vite",
+    "icons",
+    "subset-font"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/janispritzkau/tailwindcss-material-symbols.git"
   },
+  "bugs": {
+    "url": "https://github.com/janispritzkau/tailwindcss-material-symbols/issues"
+  },
+  "author": "Janis Pritzkau <janispritzkau@gmail.com>",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
