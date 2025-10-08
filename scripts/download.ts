@@ -80,7 +80,10 @@ export async function fetchCodepoints(commit: string): Promise<Record<string, st
       .map((line) => {
         const parts = line.split(" ");
         if (parts.length !== 2) throw new Error(`Invalid codepoints line: ${line}`);
-        return [parts[0], parts[1]] as const;
+        const [name, codepoint] = parts;
+        if (!/^\w+$/i.test(name) || !/^[0-9a-f]{4}$/i.test(codepoint))
+          throw new Error(`Invalid codepoint line: ${line}`);
+        return [name, codepoint];
       }),
   );
 }

@@ -32,7 +32,7 @@ export async function updateCodepoints(commit: string) {
     code += "// prettier-ignore\n";
     code += "const codepoints = {\n";
     for (const [name, codepoint] of Object.entries(codepoints))
-      code += `  "${name}": "${codepoint}",\n`;
+      code += `  "${name}": "\\u${codepoint}",\n`;
     code += "} as const;\n\n";
     code += "export default codepoints;\n";
     await writeFile(tsPath, code);
@@ -50,7 +50,8 @@ export async function updateCodepoints(commit: string) {
 
 if (import.meta.main) {
   const commit = await getLatestCommit();
-  if (commit === version.commit) {
+
+  if (process.env.FORCE_UPDATE !== "1" && commit === version.commit) {
     console.log("Material Symbols are already up to date.");
     process.exit(0);
   }

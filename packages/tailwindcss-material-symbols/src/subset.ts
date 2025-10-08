@@ -65,10 +65,9 @@ export default async function subsetMaterialSymbols(
   usedFill.add(defaults.fill);
 
   const usedSymbols = new Map(
-    Array.from(
-      css.matchAll(SYMBOLS_REGEX),
-      (m) => [m.groups!.key4! ?? m.groups!.key3!, m.groups!.value4! ?? m.groups!.value3!] as const,
-    ).filter((v): v is [keyof typeof codepoints, string] => v[0] in codepoints),
+    Array.from(css.matchAll(SYMBOLS_REGEX), (m) => m.groups!.key4! ?? m.groups!.key3!)
+      .filter((k): k is keyof typeof codepoints => k in codepoints)
+      .map((k) => [k, codepoints[k]]),
   );
 
   const content = Array.from(usedSymbols.values()).join("");
