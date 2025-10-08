@@ -1,4 +1,4 @@
-# Material Symbols for TailwindCSS
+# Material Symbols for Tailwind CSS
 
 Monorepo for `@janispritzkau/tailwindcss-material-symbols` – Material Symbols as Tailwind utilities with smart font subsetting.
 
