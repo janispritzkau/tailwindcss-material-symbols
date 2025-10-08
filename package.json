@@ -13,6 +13,7 @@
     "publish:package": "pnpm --filter ./packages/tailwindcss-material-symbols publish --no-git-checks"
   },
   "devDependencies": {
+    "@janispritzkau/tailwindcss-material-symbols": "workspace:^",
     "@types/node": "^22.18.8",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",

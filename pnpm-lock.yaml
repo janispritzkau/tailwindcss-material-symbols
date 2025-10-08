@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@janispritzkau/tailwindcss-material-symbols':
+        specifier: workspace:^
+        version: link:packages/tailwindcss-material-symbols
       '@types/node':
         specifier: ^22.18.8
         version: 22.18.8
@@ -86,6 +89,9 @@ importers:
       '@types/subset-font':
         specifier: ^2.3.0
         version: 2.3.0
+      cac:
+        specifier: ^6.7.14
+        version: 6.7.14
       lightningcss:
         specifier: ^1.30.2
         version: 1.30.2
