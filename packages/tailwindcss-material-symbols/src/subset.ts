@@ -79,7 +79,7 @@ export default async function subsetMaterialSymbols(
     if (!font) continue;
 
     const fontInput = await readFile(
-      fileURLToPath(new URL(`../material-symbols-${font}.woff2`, import.meta.url)),
+      fileURLToPath(new URL(`../assets/material-symbols-${font}.woff2`, import.meta.url)),
     );
 
     const fontOutput = await subsetFont(fontInput, content, {

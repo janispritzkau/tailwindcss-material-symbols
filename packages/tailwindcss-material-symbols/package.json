@@ -1,6 +1,6 @@
 {
   "name": "@janispritzkau/tailwindcss-material-symbols",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Easy-to-use, production-ready Material Symbols integration for Tailwind CSS with built-in font subsetting.",
   "keywords": [
     "material-symbols",
