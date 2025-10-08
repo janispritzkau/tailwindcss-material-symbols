@@ -35,14 +35,18 @@
       "import": "./dist/vite.js",
       "types": "./dist/vite.d.ts"
     },
-    "./full.css": "./full.css"
+    "./full.css": "./full.css",
+    "./outlined.css": "./outlined.css",
+    "./rounded.css": "./rounded.css",
+    "./sharp.css": "./sharp.css"
   },
   "files": [
+    "assets",
     "dist",
     "full.css",
-    "material-symbols-outlined.woff2",
-    "material-symbols-rounded.woff2",
-    "material-symbols-sharp.woff2"
+    "outlined.css",
+    "rounded.css",
+    "sharp.css"
   ],
   "scripts": {
     "build": "tsdown"

@@ -33,7 +33,7 @@ const materialSymbols = plugin(
     });
 
     matchUtilities(
-      { "icon-symbol": (value) => ({ "--icon-symbol": `"${value}"` }) },
+      { "icon-symbol": (value) => ({ "--icon-symbol": `"\\${value}"` }) },
       { values: codepoints },
     );
 

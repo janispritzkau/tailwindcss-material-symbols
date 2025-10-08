@@ -23,7 +23,7 @@ const FONT_STYLES = [
 ];
 
 const GENERATED_DIR = "../packages/tailwindcss-material-symbols/src/generated";
-const FONTS_DIR = "../packages/tailwindcss-material-symbols";
+const ASSETS_DIR = "../packages/tailwindcss-material-symbols/assets";
 const META_FILE = "meta.json";
 
 interface IconEntry {
@@ -66,9 +66,7 @@ function generateTS(entries: IconEntry[]): string {
   lines.push("// prettier-ignore");
   lines.push("export const codepoints = {");
   for (const { name, codepoint } of entries) {
-    // In TS we use the full unicode escape with leading \u and zero-pad to at least 4 digits (Material hex values already 4+)
-    const uni = "\\u" + codepoint.padStart(4, "0");
-    lines.push(`  "${name}": "${uni}",`);
+    lines.push(`  "${name}": "${codepoint}",`);
   }
   lines.push("} as const;\n");
   lines.push("export default codepoints;\n");
@@ -140,7 +138,7 @@ async function downloadFont(style: string, slug: string, destDir: string): Promi
 }
 
 async function downloadFonts(force = false): Promise<string[]> {
-  const outDir = fileURLToPath(new URL(FONTS_DIR, import.meta.url));
+  const outDir = fileURLToPath(new URL(ASSETS_DIR, import.meta.url));
   await mkdir(outDir, { recursive: true });
   const downloaded: string[] = [];
   for (const { style, slug } of FONT_STYLES) {

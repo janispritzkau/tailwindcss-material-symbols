@@ -1,4 +1,4 @@
-packages/tailwindcss-material-symbols/*.woff2
+/packages/tailwindcss-material-symbols/assets
 
 # Logs
 logs

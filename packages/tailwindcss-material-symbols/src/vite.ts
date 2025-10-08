@@ -62,11 +62,11 @@ export default function materialSymbols(options: MaterialSymbolsPluginOptions): 
               source,
             });
             css += `@font-face {
-  font-family: 'Material Symbols ${variant.replace(/^./, (c) => c.toUpperCase())}';
+  font-family: "Material Symbols ${variant.replace(/^./, (c) => c.toUpperCase())}";
   font-style: normal;
   font-weight: 100 700;
-  font-display: swap;
-  src: url(__VITE_ASSET__${ref}__) format('woff2');
+  font-display: block;
+  src: url("__VITE_ASSET__${ref}__") format("woff2");
 }\n`;
           }
           return css;
