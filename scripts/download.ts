@@ -46,13 +46,14 @@ export async function validateCurrentVersion(): Promise<boolean> {
 }
 
 export async function downloadMaterialSymbols(commit: string): Promise<Record<string, string>> {
-  await rm(ASSETS_DIR, { recursive: true, force: true });
-  await mkdir(ASSETS_DIR);
+  const assetsDir = resolve(import.meta.dirname, ASSETS_DIR);
+  await rm(assetsDir, { recursive: true, force: true });
+  await mkdir(assetsDir);
   const baseUrl = getRawBaseUrl(commit);
   const hashes: Record<(typeof VARIANTS)[number], string> = {} as any;
   for (const variant of VARIANTS) {
     const sourceUrl = `${baseUrl}/${SOURCE_FONT_PATHS[variant]}`;
-    const outputPath = resolve(import.meta.dirname, ASSETS_DIR, OUTPUT_FONT_NAMES[variant]);
+    const outputPath = resolve(assetsDir, OUTPUT_FONT_NAMES[variant]);
     const response = await fetch(sourceUrl);
     if (!response.ok) {
       throw new Error(
