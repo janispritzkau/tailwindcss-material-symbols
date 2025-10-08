@@ -71,8 +71,6 @@ export default async function subsetMaterialSymbols(
     ).filter((v): v is [keyof typeof codepoints, string] => v[0] in codepoints),
   );
 
-  console.log({ usedFont, usedOpsz, usedWght, usedGrad, usedFill, usedSymbols });
-
   const content = Array.from(usedSymbols.values()).join("");
 
   const output: Partial<Record<"outlined" | "rounded" | "sharp", Buffer>> = {};

@@ -28,13 +28,13 @@ export default function materialSymbols(options: MaterialSymbolsPluginOptions): 
       apply: "build",
       async buildStart() {
         if (options.include) {
-          for (const id of options.include) {
-            const resolved = await this.resolve(id);
+          for (const sourcePath of options.include) {
+            const resolved = await this.resolve(sourcePath);
             if (resolved) {
               const promise = new Promise<void>((resolve) => ids.set(resolved.id, resolve));
               collectPromise = collectPromise.then(() => promise);
             } else {
-              this.error(`Could not resolve ${id}`);
+              this.error(`Could not resolve ${sourcePath}`);
             }
           }
         }
