@@ -11,9 +11,11 @@
     "icons",
     "subset-font"
   ],
+  "homepage": "https://github.com/janispritzkau/tailwindcss-material-symbols",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/janispritzkau/tailwindcss-material-symbols.git"
+    "url": "git+https://github.com/janispritzkau/tailwindcss-material-symbols.git",
+    "directory": "packages/tailwindcss-material-symbols"
   },
   "bugs": {
     "url": "https://github.com/janispritzkau/tailwindcss-material-symbols/issues"

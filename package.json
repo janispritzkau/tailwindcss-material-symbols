@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "tsx ./scripts/update-material-symbols.ts",
+    "prebuild": "pnpm run download:material-symbols",
     "build": "pnpm run \"/^(build-only|type-check)$/\"",
     "build-only": "pnpm --filter ./packages/tailwindcss-material-symbols build",
     "type-check": "tsc --build",
     "format": "prettier --write **/src/**",
-    "update:material-symbols": "tsx ./scripts/update-material-symbols.ts",
+    "download:material-symbols": "tsx ./scripts/download.ts",
+    "update:material-symbols": "tsx ./scripts/update.ts",
     "publish:package": "pnpm --filter ./packages/tailwindcss-material-symbols publish --no-git-checks"
   },
   "devDependencies": {

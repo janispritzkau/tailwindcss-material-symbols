@@ -4,7 +4,6 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  clean: false,
   entry: ["./src/index.ts", "./src/vite.ts", "./src/subset.ts"],
   format: "esm",
   async onSuccess() {
@@ -18,7 +17,10 @@ export default defineConfig({
     );
     await writeFile(
       fileURLToPath(new URL("./dist/index.css", import.meta.url)),
-      `${entry}\n${codepoints.replace(/^\/\*.*\*\/\n/, "")}`,
+      entry.replace(
+        '@import "./generated/codepoints.css";\n',
+        codepoints.replace(/^\/\*.*\*\/\n/, ""),
+      ),
     );
   },
 });

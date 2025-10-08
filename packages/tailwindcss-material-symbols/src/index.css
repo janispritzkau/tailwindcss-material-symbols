@@ -1,3 +1,5 @@
+@import "./generated/codepoints.css";
+
 @theme {
   --icon-font-outlined: "Material Symbols Outlined";
   --icon-font-rounded: "Material Symbols Rounded";
