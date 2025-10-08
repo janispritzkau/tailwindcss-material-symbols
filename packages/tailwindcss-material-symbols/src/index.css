@@ -47,6 +47,7 @@
   user-select: none;
   white-space: nowrap;
   word-wrap: normal;
+  -webkit-font-smoothing: antialiased;
   font-variation-settings:
     "opsz" var(--icon-opsz, var(--default-icon-opsz)),
     "wght" var(--icon-wght, var(--default-icon-wght)),
