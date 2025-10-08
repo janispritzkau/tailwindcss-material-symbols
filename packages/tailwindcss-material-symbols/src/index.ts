@@ -17,6 +17,7 @@ const materialSymbols = plugin(
         userSelect: "none",
         whiteSpace: "nowrap",
         wordWrap: "normal",
+        "-webkit-font-smoothing": "antialiased",
         fontVariationSettings: [
           `"FILL" var(--icon-fill, ${theme("icon.fill.DEFAULT")})`,
           `"wght" var(--icon-wght, ${theme("icon.wght.DEFAULT")})`,
