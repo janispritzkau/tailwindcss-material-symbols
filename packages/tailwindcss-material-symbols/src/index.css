@@ -32,6 +32,7 @@
 
   --default-icon-font: var(--icon-font-outlined);
   --default-icon-size: var(--icon-size-md);
+  --default-icon-opsz: var(--icon-opsz-md);
   --default-icon-wght: var(--icon-wght-normal);
   --default-icon-fill: var(--icon-fill-no-fill);
   --default-icon-grad: var(--icon-grad-on-light);
