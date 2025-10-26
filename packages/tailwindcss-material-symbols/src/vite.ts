@@ -1,3 +1,5 @@
+import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { join } from "path";
 import type { Plugin } from "vite";
 import subsetMaterialSymbols from "./subset";
 
@@ -9,6 +11,7 @@ export default function materialSymbols(options: MaterialSymbolsPluginOptions): 
   let collectedCss = "";
   let ids = new Map<string, () => void>();
   let collectPromise = Promise.resolve();
+  let tempDir: string;
 
   return [
     {
@@ -26,6 +29,13 @@ export default function materialSymbols(options: MaterialSymbolsPluginOptions): 
     {
       name: "material-symbols",
       apply: "build",
+      config(config) {
+        // Create temp directory in node_modules
+        tempDir = join(process.cwd(), "node_modules", ".cache", "material-symbols");
+        if (!existsSync(tempDir)) {
+          mkdirSync(tempDir, { recursive: true });
+        }
+      },
       async buildStart() {
         if (options.include) {
           for (const sourcePath of options.include) {
@@ -56,26 +66,25 @@ export default function materialSymbols(options: MaterialSymbolsPluginOptions): 
           let css = "";
           const output = await subsetMaterialSymbols(collectedCss);
           for (const [variant, source] of Object.entries(output)) {
-            const ref = this.emitFile({
-              type: "asset",
-              name: `material-symbols-${variant}.woff2`,
-              source,
-            });
+            // Write font to temporary directory
+            const fontFileName = `material-symbols-${variant}.woff2`;
+            const fontPath = join(tempDir, fontFileName);
+            writeFileSync(fontPath, source);
+
+            // Use relative path from project root
+            const relativePath = join("node_modules", ".cache", "material-symbols", fontFileName);
+            const fontUrl = `/${relativePath}`;
+
             css += `@font-face {
   font-family: "Material Symbols ${variant.replace(/^./, (c) => c.toUpperCase())}";
   font-style: normal;
   font-weight: 100 700;
   font-display: block;
-  src: url("__VITE_ASSET__${ref}__") format("woff2");
+  src: url("${fontUrl}") format("woff2");
 }\n`;
           }
           return css;
         }
-      },
-      config() {
-        return {
-          css: {},
-        };
       },
       transformIndexHtml: {
         order: "pre",
