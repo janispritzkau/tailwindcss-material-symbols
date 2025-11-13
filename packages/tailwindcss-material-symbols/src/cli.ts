@@ -23,20 +23,20 @@ cli
     for (const file of input) {
       inputCss += readFileSync(file, "utf-8") + "\n";
     }
-    const output = await subsetMaterialSymbols(inputCss);
+    const fonts = await subsetMaterialSymbols(inputCss);
     const outDir = options.outDir ?? "dist";
     await mkdir(outDir, { recursive: true });
     let css = "";
-    for (const [variant, data] of Object.entries(output)) {
-      const path = `${outDir}/material-symbols-${variant}.woff2`;
-      await writeFile(path, data!);
+    for (const font of fonts) {
+      const path = `${outDir}/${font.fileName}`;
+      await writeFile(path, font.source);
       console.log(`Wrote ${path}`);
       css += `@font-face {
-  font-family: "Material Symbols ${variant.replace(/^./, (c) => c.toUpperCase())}";
+  font-family: "${font.fontFamily}";
   font-style: normal;
   font-weight: 100 700;
   font-display: block;
-  src: url("material-symbols-${variant}.woff2") format("woff2");
+  src: url("${font.fileName}") format("woff2");
 }\n\n`;
     }
     const cssPath = `${outDir}/material-symbols.css`;
