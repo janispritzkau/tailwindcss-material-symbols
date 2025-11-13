@@ -1,100 +1,74 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import postcss from "postcss";
 import subsetFont from "subset-font";
 import codepoints from "./generated/codepoints";
 
-export interface SubsetOptions {
-  fontFamily?: Record<"outlined" | "rounded" | "sharp", string>;
-  defaults?: {
-    font?: "outlined" | "rounded" | "sharp";
-    opsz?: number;
-    wght?: number;
-    grad?: number;
-    fill?: number;
-  };
+export interface SubsetFont {
+  fontFamily: string;
+  fileName: string;
+  source: Buffer;
 }
 
-const DEFAULT_OPTIONS = {
-  fontFamily: {
-    outlined: "Material Symbols Outlined",
-    rounded: "Material Symbols Rounded",
-    sharp: "Material Symbols Sharp",
-  },
-  defaults: {
-    font: "outlined",
-    opsz: 24,
-    wght: 400,
-    grad: 0,
-    fill: 0,
-  },
-} satisfies SubsetOptions;
+export default async function subsetMaterialSymbols(css: string): Promise<SubsetFont[]> {
+  const root = postcss.parse(css);
 
-export default async function subsetMaterialSymbols(
-  css: string,
-  options?: SubsetOptions,
-): Promise<Partial<Record<"outlined" | "rounded" | "sharp", Buffer>>> {
-  const fontFamily = { ...DEFAULT_OPTIONS.fontFamily, ...options?.fontFamily };
-  const defaults = { ...DEFAULT_OPTIONS.defaults, ...options?.defaults };
-  const fontNames = Object.fromEntries(
-    Object.entries(fontFamily).map(([k, v]) => [v, k]),
-  ) as Record<string, "outlined" | "rounded" | "sharp">;
+  root.walkDecls((decl) => {
+    if (decl.prop.startsWith("--icon-") || decl.prop.startsWith("--default-icon-")) {
+      console.log("DECL:", decl.prop, decl.value);
+    }
+  });
 
-  const usedFont = new Set(
-    Array.from(
-      css.matchAll(FONT_REGEX),
-      (m) => fontNames[m.groups!.value4! ?? m.groups!.value3!],
-    ).filter((x) => x != null),
-  );
-  const usedOpsz = new Set(
-    Array.from(css.matchAll(OPSZ_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
-  );
-  const usedWght = new Set(
-    Array.from(css.matchAll(WGHT_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
-  );
-  const usedGrad = new Set(
-    Array.from(css.matchAll(GRAD_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
-  );
-  const usedFill = new Set(
-    Array.from(css.matchAll(FILL_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
-  );
+  root.walkRules((rule) => {
+    if (rule.selector.includes("icon")) {
+      console.log("RULE:", rule.selector);
+      rule.walkDecls((decl) => {
+        if (decl.prop === "font-family") {
+          console.log(decl.value);
+        }
+        if (decl.prop === "font-variation-settings") {
+          // console.log(decl.value.match(/var\(--icon\)));
+          for (const match of decl.value.matchAll(
+            /var\(--icon-(fill|wght|grad|opsz),\s*(\d+)\)/g,
+          )) {
+            const axis = match[1];
+            const value = match[2];
+            console.log(axis, value);
+          }
+        }
+      });
+    }
+  });
 
-  usedFont.add(defaults.font);
-  usedOpsz.add(defaults.opsz);
-  usedWght.add(defaults.wght);
-  usedGrad.add(defaults.grad);
-  usedFill.add(defaults.fill);
+  // const usedSymbols = new Map(
+  //   Array.from(css.matchAll(SYMBOLS_REGEX), (m) => m.groups!.key4! ?? m.groups!.key3!)
+  //     .filter((k): k is keyof typeof codepoints => k in codepoints)
+  //     .map((k) => [k, codepoints[k]]),
+  // );
 
-  const usedSymbols = new Map(
-    Array.from(css.matchAll(SYMBOLS_REGEX), (m) => m.groups!.key4! ?? m.groups!.key3!)
-      .filter((k): k is keyof typeof codepoints => k in codepoints)
-      .map((k) => [k, codepoints[k]]),
-  );
+  // const content = Array.from(usedSymbols.values()).join("");
 
-  const content = Array.from(usedSymbols.values()).join("");
+  // const output: Partial<Record<"outlined" | "rounded" | "sharp", Buffer>> = {};
 
-  const output: Partial<Record<"outlined" | "rounded" | "sharp", Buffer>> = {};
+  // for (const font of usedFont) {
+  //   if (!font) continue;
 
-  for (const font of usedFont) {
-    if (!font) continue;
+  //   const fontInput = await readFile(
+  //     fileURLToPath(new URL(`../assets/material-symbols-${font}.woff2`, import.meta.url)),
+  //   );
 
-    const fontInput = await readFile(
-      fileURLToPath(new URL(`../assets/material-symbols-${font}.woff2`, import.meta.url)),
-    );
+  //   const fontOutput = await subsetFont(fontInput, content, {
+  //     targetFormat: "woff2",
+  //     variationAxes: {
+  //       wght: { min: Math.min(...usedWght), max: Math.max(...usedWght) },
+  //       opsz: { min: Math.min(...usedOpsz), max: Math.max(...usedOpsz) },
+  //       FILL: usedFill.size > 1 ? { min: Math.min(...usedFill), max: Math.max(...usedFill) } : 0,
+  //       GRAD: usedGrad.size > 1 ? { min: Math.min(...usedGrad), max: Math.max(...usedGrad) } : 0,
+  //     },
+  //   });
 
-    const fontOutput = await subsetFont(fontInput, content, {
-      targetFormat: "woff2",
-      variationAxes: {
-        wght: { min: Math.min(...usedWght), max: Math.max(...usedWght) },
-        opsz: { min: Math.min(...usedOpsz), max: Math.max(...usedOpsz) },
-        FILL: usedFill.size > 1 ? { min: Math.min(...usedFill), max: Math.max(...usedFill) } : 0,
-        GRAD: usedGrad.size > 1 ? { min: Math.min(...usedGrad), max: Math.max(...usedGrad) } : 0,
-      },
-    });
-
-    output[font] = fontOutput;
-  }
-
-  return output;
+  //   output[font] = fontOutput;
+  // }
 }
 
 const FONT_VARIANTS = ["outlined", "rounded", "sharp"] as const;

@@ -1,20 +1,14 @@
 import type { Plugin } from "vite";
 import subsetMaterialSymbols from "./subset";
 
-export interface MaterialSymbolsPluginOptions {
-  include: string[];
-}
-
-export default function materialSymbols(options: MaterialSymbolsPluginOptions): Plugin[] {
-  let collectedCss = "";
-  let ids = new Map<string, () => void>();
-  let collectPromise = Promise.resolve();
+export default function materialSymbols(): Plugin[] {
+  let inlineLimit: number;
 
   return [
     {
       apply: "serve",
       enforce: "pre",
-      name: "material-symbols-dev",
+      name: "@janispritzkau/tailwindcss-material-symbols/vite:serve",
       transformIndexHtml: {
         order: "pre",
         handler(html) {
@@ -24,74 +18,42 @@ export default function materialSymbols(options: MaterialSymbolsPluginOptions): 
       },
     },
     {
-      name: "material-symbols",
+      name: "@janispritzkau/tailwindcss-material-symbols/vite:build",
       apply: "build",
-      async buildStart() {
-        if (options.include) {
-          for (const sourcePath of options.include) {
-            const resolved = await this.resolve(sourcePath);
-            if (resolved) {
-              const promise = new Promise<void>((resolve) => ids.set(resolved.id, resolve));
-              collectPromise = collectPromise.then(() => promise);
-            } else {
-              this.error(`Could not resolve ${sourcePath}`);
-            }
-          }
+      async configResolved(config) {
+        if (typeof config.build.assetsInlineLimit === "number") {
+          inlineLimit = config.build.assetsInlineLimit;
         }
-      },
-      resolveId(source) {
-        if (source == "virtual:material-symbols.css") return "\0material-symbols.css";
       },
       async transform(code, id) {
-        const resolve = ids.get(id);
-        if (resolve) {
-          collectedCss += code;
-          ids.delete(id);
-          resolve();
-        }
-      },
-      async load(id) {
-        if (id == "\0material-symbols.css") {
-          await collectPromise;
-          let css = "";
-          const output = await subsetMaterialSymbols(collectedCss);
-          for (const [variant, source] of Object.entries(output)) {
+        if (!/\.css(\?inline|\?transform-only)?$/.test(id)) return;
+
+        let output = "";
+        for (const font of await subsetMaterialSymbols(code)) {
+          let fontSrc: string;
+          if (font.source.length <= inlineLimit) {
+            const base64 = font.source.toString("base64");
+            fontSrc = `data:font/woff2;base64,${base64}`;
+          } else {
             const ref = this.emitFile({
               type: "asset",
-              name: `material-symbols-${variant}.woff2`,
-              source,
+              name: font.fileName,
+              source: font.source,
             });
-            css += `@font-face {
-  font-family: "Material Symbols ${variant.replace(/^./, (c) => c.toUpperCase())}";
+            fontSrc = `__VITE_ASSET__${ref}__`;
+          }
+
+          output += `@font-face {
+  font-family: "${font.fontFamily}";
   font-style: normal;
   font-weight: 100 700;
   font-display: block;
-  src: url("__VITE_ASSET__${ref}__") format("woff2");
+  src: url("${fontSrc}") format("woff2");
 }\n`;
-          }
-          return css;
         }
-      },
-      config() {
-        return {
-          css: {},
-        };
-      },
-      transformIndexHtml: {
-        order: "pre",
-        handler(html) {
-          return {
-            html,
-            tags: [
-              {
-                tag: "script",
-                attrs: { type: "module" },
-                children: `import "virtual:material-symbols.css";`,
-                injectTo: "head",
-              },
-            ],
-          };
-        },
+
+        output += code;
+        return { code: output, map: null };
       },
     },
   ];

@@ -1,2 +1,11 @@
 @import "tailwindcss";
 @import "@janispritzkau/tailwindcss-material-symbols";
+
+@theme {
+  --icon-size-xs: --spacing(4);
+  --icon-opsz-xs: 20;
+  --default-icon-font: var(--icon-font-sharp);
+  --default-icon-size: var(--icon-size-xs);
+}
+
+@source inline('icon-xs');

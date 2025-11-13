@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "@janispritzkau/tailwindcss-material-symbols";
+
+@source inline("icon icon-symbol-add");

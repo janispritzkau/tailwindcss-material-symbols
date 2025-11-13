@@ -1,0 +1,4 @@
+@import "tailwindcss" source(none);
+@import "@janispritzkau/tailwindcss-material-symbols";
+
+@source inline("icon icon-rounded icon-symbol-remove");

@@ -15,7 +15,7 @@
     </p>
 
     <p class="mt-6">
-      <span class="icon icon-symbol-your_trips icon-8/6"></span>
+      <span class="!icon icon-symbol-your_trips icon-rounded icon-8/6"></span>
     </p>
   </main>
 </template>

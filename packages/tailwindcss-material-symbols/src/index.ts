@@ -3,7 +3,19 @@ import plugin from "tailwindcss/plugin";
 import codepoints from "./generated/codepoints";
 
 const materialSymbols = plugin(
-  ({ addUtilities, matchUtilities, theme }) => {
+  ({ addBase, addUtilities, matchUtilities, theme }) => {
+    const defaultFont = theme("icon.font.DEFAULT");
+    console.log("defaultFont", defaultFont);
+    console.log("theme icon.font", theme("icon.font"));
+    const font = Object.entries(theme("icon.font")!).find(
+      ([key, value]) => key != "DEFAULT" && value == defaultFont,
+    )?.[0];
+    if (!font) throw new Error(`icon.font.DEFAULT must appear in one of the icon.font values`);
+    addBase({
+      ":root": {
+        "--default-icon-font": `var(--icon-font-${font})`,
+      },
+    });
     addUtilities({
       ".icon": {
         boxSizing: "content-box",
