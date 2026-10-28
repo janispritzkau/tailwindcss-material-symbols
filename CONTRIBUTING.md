@@ -5,7 +5,7 @@ Thanks for helping improve `@janispritzkau/tailwindcss-material-symbols`. This g
 ## Requirements
 
 - **Node.js 22.18 or newer.** The scripts rely on `import.meta.main`. CI uses Node 22.
-- **pnpm 10.** CI uses pnpm 10. Newer pnpm versions (tested with 12.x) fail `pnpm install` with `ERR_PNPM_IGNORED_BUILDS`, because the workspace allowlists build scripts with `onlyBuiltDependencies`. To pin the version, install pnpm 10 globally (`npm install -g pnpm@10`) or run the commands through `npx pnpm@10`.
+- **pnpm 10 or newer.** CI uses pnpm 10.
 
 ## Setup
 
