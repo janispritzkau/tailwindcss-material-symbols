@@ -3,7 +3,16 @@ import plugin from "tailwindcss/plugin";
 import codepoints from "./generated/codepoints";
 
 const materialSymbols = plugin(
-  ({ addUtilities, matchUtilities, theme }) => {
+  ({ addBase, addUtilities, matchUtilities, theme, config }) => {
+    // Attribute selector so that Tailwind doesn't treat it as part of the `icon` utility and
+    // apply variants to it: `after:icon` would otherwise produce `.after\:icon::after::before`,
+    // which is invalid and breaks lightningcss minification.
+    addBase({
+      [`[class~="${config("prefix") ?? ""}icon"]::before`]: {
+        content: "var(--icon-symbol)",
+      },
+    });
+
     addUtilities({
       ".icon": {
         boxSizing: "content-box",
@@ -26,10 +35,6 @@ const materialSymbols = plugin(
         ].join(", "),
 
         "--tw-content": "var(--icon-symbol)", // if applied on before or after variant
-
-        "&::before": {
-          content: "var(--icon-symbol)",
-        },
       },
     });
 
