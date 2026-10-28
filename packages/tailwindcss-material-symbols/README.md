@@ -133,7 +133,7 @@ Numeric sizes use your spacing scale. `icon-<n>` sets the font size to the spaci
 
 The font supports optical sizes 20–48. The browser clamps values outside that range.
 
-Arbitrary sizes (Tailwind v4 only) set only the font size. Use `icon-opsz-*` to choose an optical size:
+Arbitrary sizes set only the font size. Use `icon-opsz-*` to choose an optical size:
 
 ```html
 <span class="icon icon-symbol-star icon-[4em] icon-opsz-xl"></span>
@@ -181,7 +181,7 @@ The `before:` and `after:` variants add an icon without an extra element:
 | `icon-outlined` (default), `icon-rounded`, `icon-sharp`                                                            | Font family / style.                                                           |
 | `icon-sm`, `icon-md` (default), `icon-lg`, `icon-xl`                                                               | Font size 20 / 24 / 40 / 48px and the matching optical size.                   |
 | `icon-<n>`                                                                                                         | Font size from the spacing scale, optical size `<n> × 4`.                      |
-| `icon-[<length>]`                                                                                                  | Arbitrary font size, optical size unchanged (v4 only).                         |
+| `icon-[<length>]`                                                                                                  | Arbitrary font size, optical size unchanged.                                   |
 | `icon-<size>/<line-height>`                                                                                        | Any size utility above with a line height (e.g. `icon-sm/5`, `icon-md/[1lh]`). |
 | `icon-opsz-sm`, `icon-opsz-md`, `icon-opsz-lg`, `icon-opsz-xl`                                                     | Optical size 20 / 24 / 40 / 48 without changing the font size.                 |
 | `icon-thin`, `icon-extralight`, `icon-light`, `icon-normal` (default), `icon-medium`, `icon-semibold`, `icon-bold` | Weight 100–700.                                                                |
@@ -314,7 +314,6 @@ Unlike the CLI, the API doesn't write files or generate `@font-face` rules.
 
 ## Limitations
 
-- **Arbitrary sizes in v3:** `icon-[<length>]` produces no CSS with Tailwind v3. Use a numeric size, a named size, or a custom theme size instead.
 - **Custom theme values and subsetting:** the subsetter detects axis values from the built-in theme keys and from literal values (all v3 utilities, and `icon-<n>` in v4). It doesn't detect:
   - New v4 theme keys, such as an `--icon-opsz-2xl` that you added.
   - Changed v3 `DEFAULT` values. For example, setting `icon.font.DEFAULT` to Rounded in v3 makes the Vite plugin and the CLI emit only the Outlined font, so icons that rely on the default don't render in production. Add the style class explicitly (`icon-rounded`) or use the Node API with `defaults`.
