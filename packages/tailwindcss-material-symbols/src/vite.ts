@@ -6,9 +6,8 @@ export interface MaterialSymbolsPluginOptions {
 }
 
 export default function materialSymbols(options: MaterialSymbolsPluginOptions): Plugin[] {
-  let collectedCss = "";
-  let ids = new Map<string, () => void>();
-  let collectPromise = Promise.resolve();
+  let includeIds: string[] = [];
+  const cssById = new Map<string, string>();
 
   return [
     {
@@ -27,12 +26,12 @@ export default function materialSymbols(options: MaterialSymbolsPluginOptions): 
       name: "material-symbols",
       apply: "build",
       async buildStart() {
+        includeIds = [];
         if (options.include) {
           for (const sourcePath of options.include) {
             const resolved = await this.resolve(sourcePath);
             if (resolved) {
-              const promise = new Promise<void>((resolve) => ids.set(resolved.id, resolve));
-              collectPromise = collectPromise.then(() => promise);
+              includeIds.push(resolved.id);
             } else {
               this.error(`Could not resolve ${sourcePath}`);
             }
@@ -43,16 +42,14 @@ export default function materialSymbols(options: MaterialSymbolsPluginOptions): 
         if (source == "virtual:material-symbols.css") return "\0material-symbols.css";
       },
       async transform(code, id) {
-        const resolve = ids.get(id);
-        if (resolve) {
-          collectedCss += code;
-          ids.delete(id);
-          resolve();
-        }
+        if (includeIds.includes(id)) cssById.set(id, code);
       },
       async load(id) {
         if (id == "\0material-symbols.css") {
-          await collectPromise;
+          // Wait for the included stylesheets to be transformed. This also loads them if nothing
+          // imports them, and reuses the cached CSS when watch mode skips their transform.
+          await Promise.all(includeIds.map((id) => this.load({ id })));
+          const collectedCss = includeIds.map((id) => cssById.get(id) ?? "").join("\n");
           let css = "";
           const output = await subsetMaterialSymbols(collectedCss);
           for (const [variant, source] of Object.entries(output)) {
