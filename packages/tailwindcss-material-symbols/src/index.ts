@@ -60,10 +60,11 @@ const materialSymbols = plugin(
 
     matchUtilities(
       {
-        icon: (value, { modifier }) => ({
-          fontSize: value.fontSize,
+        // Arbitrary values (`icon-[2em]`) are plain strings and only set the font size.
+        icon: (value: string | { fontSize: string; opsz: string }, { modifier }) => ({
+          fontSize: typeof value == "string" ? value : value.fontSize,
           ...(modifier != null ? { lineHeight: modifier } : {}),
-          "--icon-opsz": value.opsz,
+          ...(typeof value == "string" ? {} : { "--icon-opsz": value.opsz }),
         }),
       },
       {
