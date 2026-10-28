@@ -48,6 +48,7 @@
   "files": [
     "assets",
     "dist",
+    "LICENSE-FONTS",
     "full.css",
     "outlined.css",
     "rounded.css",

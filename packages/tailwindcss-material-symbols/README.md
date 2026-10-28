@@ -316,4 +316,4 @@ Unlike the CLI, the API doesn't write files or generate `@font-face` rules.
 
 ## License
 
-MIT. The Material Symbols fonts are by Google and licensed under the [Apache License 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE).
+MIT. The bundled Material Symbols fonts are by Google and licensed under the [Apache License 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE), included as `LICENSE-FONTS`.
