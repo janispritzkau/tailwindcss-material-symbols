@@ -79,8 +79,6 @@ The fonts come from [google/material-design-icons](https://github.com/google/mat
 - **`pnpm download:material-symbols`** (also runs before every `pnpm build`): if `assets/` already contains fonts that match the pinned hashes, it does nothing. Otherwise, it downloads all three fonts for the pinned commit. If a downloaded font doesn't match its hash, the script prints a warning but doesn't fail.
 - **`pnpm update:material-symbols`**: gets the latest commit on upstream `master`. If that commit is already pinned, the script exits. Otherwise, it downloads the fonts for the new commit, regenerates `src/generated/codepoints.ts` and `src/generated/codepoints.css`, and writes the new commit and hashes to `version.json`. Set `FORCE_UPDATE=1` to regenerate even if the commit hasn't changed. Commit `version.json` and `src/generated/` together.
 
-> **Known issue:** upstream now includes codepoints above U+FFFF (5 hex digits). `pnpm update:material-symbols` rejects them with `Invalid codepoint line` and stops. By then it has already replaced the fonts in `assets/`. Run `pnpm download:material-symbols` to restore the pinned fonts.
-
 ## Releasing
 
 Releases are published from GitHub Actions ([`.github/workflows/publish.yml`](.github/workflows/publish.yml)) when a `v*` tag is pushed:
