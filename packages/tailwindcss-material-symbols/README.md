@@ -241,8 +241,6 @@ export default {
 
 The groups are `font`, `size` (objects with `fontSize` and `opsz`), `wght`, `fill`, and `grad`. See the plugin source for the default values.
 
-Subsetting only detects some of these customizations. See [Limitations](#limitations).
-
 ## Vite plugin
 
 ```ts
@@ -313,12 +311,6 @@ for (const [style, data] of Object.entries(fonts)) {
 Unlike the CLI, the API doesn't write files or generate `@font-face` rules.
 
 ## Limitations
-
-- **Custom theme values and subsetting:** the subsetter detects axis values from the built-in theme keys and from literal values (all v3 utilities, and `icon-<n>` in v4). It doesn't detect:
-  - New v4 theme keys, such as an `--icon-opsz-2xl` that you added.
-  - Changed v3 `DEFAULT` values. For example, setting `icon.font.DEFAULT` to Rounded in v3 makes the Vite plugin and the CLI emit only the Outlined font, so icons that rely on the default don't render in production. Add the style class explicitly (`icon-rounded`) or use the Node API with `defaults`.
-
-  In v4, changing `--default-icon-*` to one of the built-in keys works, as shown in the customization example.
 
 - **No ligatures:** select symbols with `icon-symbol-*` classes. Ligature text such as `<span class="icon">home</span>` renders with the full fonts, but not with subsetted fonts, which contain only the glyphs of the `icon-symbol-*` classes in your CSS.
 
