@@ -3,7 +3,7 @@
 All notable changes to `@janispritzkau/tailwindcss-material-symbols` are documented in this file.
 The changelog is generated from the commit history with [git-cliff](https://git-cliff.org).
 
-## Unreleased
+## [0.0.10](https://github.com/janispritzkau/tailwindcss-material-symbols/compare/v0.0.9...v0.0.10) - 2026-10-28
 
 ### Bug fixes
 
@@ -24,6 +24,7 @@ The changelog is generated from the commit history with [git-cliff](https://git-
 
 - Update material symbols to 10ecc14 ([75adc69](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/75adc6936c390349fe81e12386847c08e468181f))
 - Ship license files in the npm package ([f2721cc](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/f2721cc1288782bf3e43b9e19cbf3674297c87ba))
+- Generate changelog and release notes with git-cliff ([2fda6fd](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/2fda6fdfe060d39fc515a176b4ee70389ac6fa31))
 
 ## [0.0.9](https://github.com/janispritzkau/tailwindcss-material-symbols/compare/v0.0.8...v0.0.9) - 2025-10-26
 
