@@ -48,6 +48,12 @@ cli.help();
 cli.version(version);
 cli.parse();
 
-if (!cli.matchedCommand) {
+if (!cli.matchedCommand && !cli.options.help && !cli.options.version) {
+  if (cli.args.length > 0) {
+    console.error(`Unknown command: ${cli.args[0]}`);
+    console.log();
+    cli.outputHelp();
+    process.exit(1);
+  }
   cli.outputHelp();
 }
