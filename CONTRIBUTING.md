@@ -45,6 +45,7 @@ Run these from the repository root:
 | `pnpm format`                    | Runs Prettier on all `src` directories.                                                                                  |
 | `pnpm download:material-symbols` | Downloads the fonts pinned in `version.json` into `assets/`. Does nothing if the existing files match the pinned hashes. |
 | `pnpm update:material-symbols`   | Updates to the latest upstream fonts and codepoints. See below.                                                          |
+| `pnpm changelog`                 | Regenerates `CHANGELOG.md` from the commit history. Pass `--tag vX.Y.Z` to put unreleased changes under that version.    |
 | `pnpm publish:package`           | Publishes the package to npm. Normally run by CI only.                                                                   |
 
 There is no test suite. To check a change, run `pnpm build` and build both examples:
@@ -84,15 +85,25 @@ The fonts come from [google/material-design-icons](https://github.com/google/mat
 Releases are published from GitHub Actions ([`.github/workflows/publish.yml`](.github/workflows/publish.yml)) when a `v*` tag is pushed:
 
 1. Bump `version` in `packages/tailwindcss-material-symbols/package.json`.
-2. Commit the change, for example `chore: bump version to 0.1.0`.
-3. Tag the commit and push the commit and the tag:
+2. Update the changelog for the new version:
+
+   ```bash
+   pnpm changelog --tag v0.1.0
+   ```
+
+3. Commit both changes, for example `chore: bump version to 0.1.0`.
+4. Tag the commit and push the commit and the tag:
 
    ```bash
    git tag v0.1.0
    git push origin main v0.1.0
    ```
 
-The workflow runs `pnpm install`, `pnpm build`, and `pnpm publish:package` with Node 22 and pnpm 10. It authenticates to npm with GitHub OIDC (`id-token: write`), so it doesn't need an npm token.
+The workflow runs `pnpm install`, `pnpm build`, and `pnpm publish:package` with Node 22 and pnpm 10. It authenticates to npm with GitHub OIDC (`id-token: write`), so it doesn't need an npm token. After publishing, it creates a GitHub release for the tag with the same notes as the changelog.
+
+### Changelog
+
+[`CHANGELOG.md`](CHANGELOG.md) is generated from the commit history with [git-cliff](https://git-cliff.org) ([`cliff.toml`](cliff.toml)). Don't edit it by hand: the next `pnpm changelog` overwrites it. Only Conventional Commits appear in it, grouped by type, so the commit message is the changelog entry. `chore: bump version` commits and merge commits are left out. Prerelease tags such as `v0.1.0-alpha.0` don't get their own section.
 
 ## Pull requests
 
