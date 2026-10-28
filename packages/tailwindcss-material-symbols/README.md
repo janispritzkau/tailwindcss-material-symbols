@@ -65,6 +65,8 @@ export default {
 } satisfies Config;
 ```
 
+The plugin adds one rule to the base layer, so your CSS needs `@tailwind base`.
+
 ### Loading the fonts
 
 The utilities only reference the font families `Material Symbols Outlined`, `Material Symbols Rounded`, and `Material Symbols Sharp`. You also need to load the fonts. Pick one of these options:
