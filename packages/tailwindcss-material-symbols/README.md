@@ -1,39 +1,58 @@
 # Material Symbols for Tailwind CSS
 
-Modern, variable Material Symbols as first‑class Tailwind utilities for both TailwindCSS v3 (plugin) and v4 (stand‑alone CSS utilities) with automatic font subsetting for production.
+[Material Symbols](https://fonts.google.com/icons) as Tailwind CSS utilities, with font subsetting for production builds.
 
-## Features
+```html
+<span class="icon icon-symbol-home"></span>
+<span class="icon icon-symbol-favorite icon-rounded icon-fill icon-lg text-red-500"></span>
+```
 
-- Tailwind v3 plugin & Tailwind v4 native utility file
-- Single `.icon` utility with composable variation classes (size / weight / fill / grade / family)
-- Deterministic `icon-symbol-*` utilities for every Material Symbol
-- Vite plugin that auto‑subsets variable fonts to only the symbols + variation axis ranges you actually use
-- Optional (dev‑only) import of the full, un‑subsettled fonts for zero‑config local development
+- Works with Tailwind CSS v4 (CSS import) and v3 (plugin).
+- One `icon-symbol-*` utility for every Material Symbol.
+- Utilities for the font's variable axes: fill, weight, grade, and optical size. They compose with any Tailwind variant (`hover:`, `dark:`, `group-hover:`, `before:`, …).
+- The Vite plugin uses the full fonts in development. For production builds it subsets them to the symbols and axis ranges your CSS uses, so you ship a few KB instead of several MB.
+- A CLI and a Node API do the same subsetting outside Vite.
+
+## Contents
+
+- [Installation](#installation)
+- [Setup](#setup)
+  - [Tailwind CSS v4](#tailwind-css-v4)
+  - [Tailwind CSS v3](#tailwind-css-v3)
+  - [Loading the fonts](#loading-the-fonts)
+- [Usage](#usage)
+- [Utility reference](#utility-reference)
+- [Customization](#customization)
+- [Vite plugin](#vite-plugin)
+- [CLI](#cli)
+- [Node API](#node-api)
+- [Limitations](#limitations)
 
 ## Installation
 
 ```bash
-pnpm add @janispritzkau/tailwindcss-material-symbols
+npm install -D @janispritzkau/tailwindcss-material-symbols
 # or
-npm i @janispritzkau/tailwindcss-material-symbols
+pnpm add -D @janispritzkau/tailwindcss-material-symbols
 ```
 
-Peer deps: `tailwindcss` and (optionally) `vite` when using the Vite plugin.
+Peer dependencies: `tailwindcss` (`^3.4.17` or `^4.1.13`). `vite` (`^7.1.7`) is only needed for the Vite plugin.
 
-## Available Utilities
+## Setup
 
-- Family: `icon-outlined` (default), `icon-rounded`, `icon-sharp`
-- Size: `icon-sm`, `icon-md` (default), `icon-lg`, `icon-xl`
-- Weight: `icon-thin`, `icon-extralight`, `icon-light`, `icon-normal` (default), `icon-medium`, `icon-semibold`, `icon-bold`
-- Fill: `icon-fill`, `icon-no-fill` (default)
-- Grade: `icon-on-light` (0 / default), `icon-on-dark` (-25), `icon-high` (200)
-- Symbol: `icon-symbol-<name>` (e.g. `icon-symbol-home`, `icon-symbol-search` …)
+### Tailwind CSS v4
 
-You can specify arbitrary icon sizes and line heights as follows: `icon-8`, `icon-sm/6`, or `icon-[1em]/[1lh]`. Note that arbitrary expressions don't automatically set the optical size; you can specify this separately via `icon-opsz-*`.
+Import the utilities after Tailwind in your main stylesheet:
 
-## Usage with TailwindCSS v3
+```css
+/* src/style.css */
+@import "tailwindcss";
+@import "@janispritzkau/tailwindcss-material-symbols";
+```
 
-1. Enable the plugin in `tailwind.config.(js|ts)`
+### Tailwind CSS v3
+
+Add the plugin to your Tailwind config:
 
 ```ts
 // tailwind.config.ts
@@ -41,51 +60,269 @@ import type { Config } from "tailwindcss";
 import materialSymbols from "@janispritzkau/tailwindcss-material-symbols";
 
 export default {
-  content: ["./src/**/*.{js,ts,vue,jsx,tsx}", "./index.html"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx,vue}"],
   plugins: [materialSymbols],
 } satisfies Config;
 ```
 
-## Usage with TailwindCSS v4
+### Loading the fonts
 
-For v4 you can skip the plugin and just import the provided utility layer:
+The utilities only reference the font families `Material Symbols Outlined`, `Material Symbols Rounded`, and `Material Symbols Sharp`. You also need to load the fonts. Pick one of these options:
 
-```css
-/* src/style.css */
-@import "@janispritzkau/tailwindcss-material-symbols";
+- **Vite (recommended):** add the [Vite plugin](#vite-plugin). It serves the full fonts during development and emits subsetted fonts at build time.
+- **Other build tools:** run the [CLI](#cli) on your compiled CSS to generate subsetted fonts and a matching `@font-face` stylesheet.
+- **Full fonts:** import the bundled, unsubsetted variable fonts. This is the simplest option, but each font is 3.5–5.5 MB, so avoid it in production.
+
+  ```css
+  @import "@janispritzkau/tailwindcss-material-symbols/full.css"; /* all three styles */
+  @import "@janispritzkau/tailwindcss-material-symbols/outlined.css"; /* or only one */
+  @import "@janispritzkau/tailwindcss-material-symbols/rounded.css";
+  @import "@janispritzkau/tailwindcss-material-symbols/sharp.css";
+  ```
+
+## Usage
+
+Every icon needs the `icon` base class and an `icon-symbol-<name>` class. Symbol names are the snake_case names from [Google Fonts](https://fonts.google.com/icons), for example `arrow_forward`, `10k`, or `check_circle`.
+
+```html
+<span class="icon icon-symbol-arrow_forward"></span>
 ```
 
-## Vite Plugin (Automatic Subsetting)
+The icon is rendered through a `::before` pseudo-element, so the element itself stays empty. It inherits `color` like text does, so color utilities such as `text-blue-600` apply directly.
 
-Add the plugin to your `vite.config.ts`. It will:
+For decorative icons, add `aria-hidden="true"` so screen readers skip them.
 
-1. Collect the final CSS produced for the files you list in `include`
-2. Detect which `icon-symbol-*` utilities and which variation axis values are used
-3. Subset each variable font (outlined / rounded / sharp)
-4. Emit only the required glyphs + axis min/max as optimized `woff2` assets
-5. Inject the necessary `@font-face` declarations
+### Style, fill, weight, and grade
+
+```html
+<!-- Style (font family) -->
+<span class="icon icon-symbol-home icon-rounded"></span>
+<span class="icon icon-symbol-home icon-sharp"></span>
+
+<!-- Filled -->
+<span class="icon icon-symbol-favorite icon-fill"></span>
+
+<!-- Weight -->
+<span class="icon icon-symbol-search icon-thin"></span>
+<span class="icon icon-symbol-search icon-bold"></span>
+
+<!-- Grade: use icon-on-dark for light icons on a dark background -->
+<span class="icon icon-symbol-settings icon-on-dark"></span>
+```
+
+### Size and optical size
+
+The named sizes set both the font size and the matching optical size (`opsz`):
+
+| Class     | Font size      | Optical size |
+| --------- | -------------- | ------------ |
+| `icon-sm` | 1.25rem (20px) | 20           |
+| `icon-md` | 1.5rem (24px)  | 24 (default) |
+| `icon-lg` | 2.5rem (40px)  | 40           |
+| `icon-xl` | 3rem (48px)    | 48           |
+
+```html
+<span class="icon icon-symbol-star icon-lg"></span>
+```
+
+Numeric sizes use your spacing scale. `icon-<n>` sets the font size to the spacing value `<n>` and the optical size to `<n> × 4`, which is the pixel size at the default 16px root font size. For example, `icon-8` is 2rem with optical size 32:
+
+```html
+<span class="icon icon-symbol-star icon-8"></span>
+```
+
+The font supports optical sizes 20–48. The browser clamps values outside that range.
+
+Arbitrary sizes (Tailwind v4 only) set only the font size. Use `icon-opsz-*` to choose an optical size:
+
+```html
+<span class="icon icon-symbol-star icon-[4em] icon-opsz-xl"></span>
+```
+
+### Line height
+
+The `icon` class sets `line-height: 1`. Add a line-height modifier to any size utility to align an icon with surrounding text:
+
+```html
+<p class="text-sm">
+  <span class="icon icon-symbol-person icon-sm/5 align-top"></span>
+  Profile
+</p>
+
+<span class="icon icon-symbol-add icon-md/[1lh]"></span>
+```
+
+### Variants
+
+The axis utilities only set CSS custom properties, so they work with any variant:
+
+```html
+<button class="group">
+  <span
+    class="icon icon-symbol-bookmark hover:icon-fill group-hover:icon-bold dark:icon-on-dark"
+  ></span>
+</button>
+```
+
+### Icons in pseudo-elements
+
+The `before:` and `after:` variants add an icon without an extra element:
+
+```html
+<a class="after:icon after:icon-symbol-open_in_new after:icon-sm/[1lh] after:align-top">Docs</a>
+```
+
+## Utility reference
+
+| Utility                                                                                                            | Effect                                                                         |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `icon`                                                                                                             | Base icon styles. Renders the selected symbol in `::before`.                   |
+| `icon-symbol-<name>`                                                                                               | Selects the symbol.                                                            |
+| `icon-outlined` (default), `icon-rounded`, `icon-sharp`                                                            | Font family / style.                                                           |
+| `icon-sm`, `icon-md` (default), `icon-lg`, `icon-xl`                                                               | Font size 20 / 24 / 40 / 48px and the matching optical size.                   |
+| `icon-<n>`                                                                                                         | Font size from the spacing scale, optical size `<n> × 4`.                      |
+| `icon-[<length>]`                                                                                                  | Arbitrary font size, optical size unchanged (v4 only).                         |
+| `icon-<size>/<line-height>`                                                                                        | Any size utility above with a line height (e.g. `icon-sm/5`, `icon-md/[1lh]`). |
+| `icon-opsz-sm`, `icon-opsz-md`, `icon-opsz-lg`, `icon-opsz-xl`                                                     | Optical size 20 / 24 / 40 / 48 without changing the font size.                 |
+| `icon-thin`, `icon-extralight`, `icon-light`, `icon-normal` (default), `icon-medium`, `icon-semibold`, `icon-bold` | Weight 100–700.                                                                |
+| `icon-no-fill` (default), `icon-fill`                                                                              | Fill 0 / 1.                                                                    |
+| `icon-on-light` (default), `icon-on-dark`, `icon-high`                                                             | Grade 0 / -25 / 200.                                                           |
+
+## Customization
+
+### Tailwind CSS v4
+
+All values are theme variables. Override or add them in your own `@theme` block:
+
+```css
+@import "tailwindcss";
+@import "@janispritzkau/tailwindcss-material-symbols";
+
+@theme {
+  /* Change the defaults applied by `icon` */
+  --default-icon-font: var(--icon-font-rounded);
+  --default-icon-wght: var(--icon-wght-light);
+
+  /* Add a size: enables `icon-2xl` and `icon-opsz-2xl` */
+  --icon-size-2xl: --spacing(16);
+  --icon-opsz-2xl: 48;
+}
+```
+
+| Namespace          | Keys                                                                  | Used by                           |
+| ------------------ | --------------------------------------------------------------------- | --------------------------------- |
+| `--icon-font-*`    | `outlined`, `rounded`, `sharp`                                        | `icon-<font>`                     |
+| `--icon-size-*`    | `sm`, `md`, `lg`, `xl`                                                | `icon-<size>` (font size)         |
+| `--icon-opsz-*`    | `sm`, `md`, `lg`, `xl`                                                | `icon-<size>`, `icon-opsz-<size>` |
+| `--icon-wght-*`    | `thin`, `extralight`, `light`, `normal`, `medium`, `semibold`, `bold` | `icon-<weight>`                   |
+| `--icon-fill-*`    | `fill`, `no-fill`                                                     | `icon-fill`, `icon-no-fill`       |
+| `--icon-grad-*`    | `on-light`, `on-dark`, `high`                                         | `icon-<grade>`                    |
+| `--default-icon-*` | `font`, `size`, `opsz`, `wght`, `fill`, `grad`                        | `icon`                            |
+
+### Tailwind CSS v3
+
+The plugin reads the `icon` theme key. Each group has a `DEFAULT` entry that `icon` uses:
+
+```ts
+// tailwind.config.ts
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx,vue}"],
+  theme: {
+    extend: {
+      icon: {
+        size: { "2xl": { fontSize: "4rem", opsz: "48" } }, // icon-2xl, icon-opsz-2xl
+        wght: { DEFAULT: "300" },
+      },
+    },
+  },
+  plugins: [materialSymbols],
+} satisfies Config;
+```
+
+The groups are `font`, `size` (objects with `fontSize` and `opsz`), `wght`, `fill`, and `grad`. See the plugin source for the default values.
+
+Subsetting only detects some of these customizations. See [Limitations](#limitations).
+
+## Vite plugin
 
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 import materialSymbols from "@janispritzkau/tailwindcss-material-symbols/vite";
 
 export default defineConfig({
-  plugins: [
-    materialSymbols({
-      // List the CSS modules whose output should be scanned
-      include: ["src/style.css"],
-    }),
-  ],
+  plugins: [tailwindcss(), materialSymbols({ include: ["./src/style.css"] })],
 });
 ```
 
-During dev (`vite serve`) the FULL fonts are injected. On build it performs real subsetting.
+With Tailwind v3, add the plugin the same way and leave out `@tailwindcss/vite`. Tailwind runs through PostCSS in that case.
 
-## Manual Full Font Import
+**Options**
 
-If you are not using the Vite plugin, you can import the full, un‑subset fonts directly. Avoid this for production because the variable fonts are large.
+| Option    | Type       | Description                                                                                                                                                   |
+| --------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `include` | `string[]` | Required. The stylesheets that contain your Tailwind output, usually the file with `@import "tailwindcss"` or `@tailwind utilities`. Vite resolves the paths. |
 
-```css
-@import "@janispritzkau/tailwindcss-material-symbols/full.css";
+**How it works**
+
+- **`vite` (dev server):** injects the full fonts into `index.html` so every symbol and axis value works without a rebuild.
+- **`vite build`:** waits until Tailwind has generated the CSS for each `include`d file, then finds the `icon-symbol-*` symbols, font styles, and axis values in that CSS. It subsets each used font style to those glyphs and axis ranges and emits the result as `material-symbols-<style>.woff2` assets. The matching `@font-face` rules are injected through `index.html`.
+
+The plugin injects through `index.html`, so it needs an HTML entry. For other setups, use the [CLI](#cli) or the [Node API](#node-api).
+
+## CLI
+
+The `tailwindcss-material-symbols` command subsets the fonts based on compiled Tailwind CSS. Use it with the Tailwind CLI, PostCSS, or any other build tool:
+
+```bash
+npx tailwindcss-material-symbols subset dist/style.css --outDir dist/fonts
 ```
+
+```
+tailwindcss-material-symbols subset [...input] [--outDir <dir>]
+```
+
+- `input`: one or more compiled CSS files. If no files are given, the CSS is read from stdin.
+- `--outDir`: output directory (default: `dist`).
+
+It writes `material-symbols-<style>.woff2` for each used font style, plus a `material-symbols.css` with `@font-face` rules that reference the fonts by relative URL. Load that stylesheet in your page next to your compiled CSS.
+
+## Node API
+
+```ts
+import { readFile, writeFile } from "node:fs/promises";
+import subsetMaterialSymbols from "@janispritzkau/tailwindcss-material-symbols/subset";
+
+const css = await readFile("dist/style.css", "utf-8");
+const fonts = await subsetMaterialSymbols(css);
+// => { outlined?: Buffer, rounded?: Buffer, sharp?: Buffer } (woff2)
+
+for (const [style, data] of Object.entries(fonts)) {
+  await writeFile(`dist/material-symbols-${style}.woff2`, data);
+}
+```
+
+`subsetMaterialSymbols(css, options?)` accepts these options:
+
+| Option       | Type                                                                                                        | Description                                                                                           |
+| ------------ | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `fontFamily` | `{ outlined, rounded, sharp }` (font family names)                                                          | Font family names to look for, if you renamed them in your theme.                                     |
+| `defaults`   | `{ font?: "outlined" \| "rounded" \| "sharp"; opsz?: number; wght?: number; grad?: number; fill?: number }` | Values that are always included, matching the defaults of `icon`. Default: `outlined`, 24, 400, 0, 0. |
+
+Unlike the CLI, the API doesn't write files or generate `@font-face` rules.
+
+## Limitations
+
+- **Arbitrary sizes in v3:** `icon-[<length>]` produces no CSS with Tailwind v3. Use a numeric size, a named size, or a custom theme size instead.
+- **Custom theme values and subsetting:** the subsetter detects axis values from the built-in theme keys and from literal values (all v3 utilities, and `icon-<n>` in v4). It doesn't detect:
+  - New v4 theme keys, such as an `--icon-opsz-2xl` that you added.
+  - Changed v3 `DEFAULT` values. For example, setting `icon.font.DEFAULT` to Rounded in v3 makes the Vite plugin and the CLI emit only the Outlined font, so icons that rely on the default don't render in production. Add the style class explicitly (`icon-rounded`) or use the Node API with `defaults`.
+
+  In v4, changing `--default-icon-*` to one of the built-in keys works, as shown in the customization example.
+
+- **No ligatures:** select symbols with `icon-symbol-*` classes. Ligature text such as `<span class="icon">home</span>` renders with the full fonts, but not with subsetted fonts, which contain only the glyphs of the `icon-symbol-*` classes in your CSS.
+
+## License
+
+MIT. The Material Symbols fonts are by Google and licensed under the [Apache License 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE).

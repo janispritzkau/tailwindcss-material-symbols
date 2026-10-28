@@ -1,57 +1,51 @@
 # Material Symbols for Tailwind CSS
 
-Monorepo for `@janispritzkau/tailwindcss-material-symbols` – Material Symbols as Tailwind utilities with smart font subsetting.
+[Material Symbols](https://fonts.google.com/icons) as Tailwind CSS utilities, with font subsetting for production builds. Supports Tailwind CSS v4 and v3.
 
-## Package
-
-Full documentation: `packages/tailwindcss-material-symbols/README.md` (same as on npm).
-
-Highlights:
-
-- Tailwind v3 plugin & v4 utility import
-- Variation utilities for weight, size, fill, grade, family, symbol
-- Vite plugin that subsets fonts automatically
-- Planned standalone CLI
-
-## Quick Start
-
-```bash
-pnpm add @janispritzkau/tailwindcss-material-symbols
+```html
+<span class="icon icon-symbol-favorite icon-rounded icon-fill icon-lg"></span>
 ```
 
-### TailwindCSS v4
+**The full documentation is in the [package README](packages/tailwindcss-material-symbols/README.md).** The same file is published on [npm](https://www.npmjs.com/package/@janispritzkau/tailwindcss-material-symbols).
+
+## Quick start (Tailwind v4 + Vite)
+
+```bash
+npm install -D @janispritzkau/tailwindcss-material-symbols
+```
 
 ```css
+/* src/style.css */
+@import "tailwindcss";
 @import "@janispritzkau/tailwindcss-material-symbols";
 ```
 
-### TailwindCSS v3
-
 ```ts
-// tailwind.config.ts
-import materialSymbols from "@janispritzkau/tailwindcss-material-symbols";
-export default { content: ["./src/**/*.{ts,vue}", "./index.html"], plugins: [materialSymbols] };
+// vite.config.ts
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+import materialSymbols from "@janispritzkau/tailwindcss-material-symbols/vite";
+
+export default defineConfig({
+  plugins: [tailwindcss(), materialSymbols({ include: ["./src/style.css"] })],
+});
 ```
 
-```html
-<span class="icon icon-symbol-home"></span>
-<span class="icon icon-symbol-home icon-rounded icon-bold"></span>
-```
+For Tailwind v3, the CLI, and all utilities and options, see the [package README](packages/tailwindcss-material-symbols/README.md).
 
-Then use the same classes as v3.
+## Repository layout
 
-## Examples
-
-```bash
-pnpm install
-pnpm --filter ./examples/tailwindcss-v3 build
-pnpm --filter ./examples/tailwindcss-v4 build
-```
+| Path                                                                             | Contents                                                                |
+| -------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`packages/tailwindcss-material-symbols`](packages/tailwindcss-material-symbols) | The published package: Tailwind plugin/CSS, Vite plugin, CLI, subsetter |
+| [`examples/tailwindcss-v4`](examples/tailwindcss-v4)                             | Vue + Vite example with Tailwind v4                                     |
+| [`examples/tailwindcss-v3`](examples/tailwindcss-v3)                             | Vue + Vite example with Tailwind v3 (PostCSS)                           |
+| [`scripts`](scripts)                                                             | Scripts that download and update the upstream fonts and codepoints      |
 
 ## Contributing
 
-See `CONTRIBUTING.md` for update scripts, release workflow and roadmap.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup, scripts, and release process.
 
 ## License
 
-MIT (code). Material Symbols copyright Google.
+MIT. The Material Symbols fonts are by Google and licensed under the [Apache License 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE).
