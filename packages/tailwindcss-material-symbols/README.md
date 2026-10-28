@@ -36,7 +36,7 @@ npm install -D @janispritzkau/tailwindcss-material-symbols
 pnpm add -D @janispritzkau/tailwindcss-material-symbols
 ```
 
-Peer dependencies: `tailwindcss` (`^3.4.17` or `^4.1.13`). `vite` (`^7.1.7`) is only needed for the Vite plugin.
+Peer dependencies: `tailwindcss` (`^3.4.17` or `^4.1.13`). `vite` (`^7.1.7` or `^8.0.0`) is only needed for the Vite plugin.
 
 ## Setup
 
