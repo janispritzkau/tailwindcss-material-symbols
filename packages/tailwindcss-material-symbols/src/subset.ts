@@ -97,32 +97,21 @@ export default async function subsetMaterialSymbols(
   return output;
 }
 
-const FONT_VARIANTS = ["outlined", "rounded", "sharp"] as const;
-const OPSZ_VARIANTS = ["sm", "md", "lg", "xl"] as const;
-const WGHT_VARIANTS = [
-  "thin",
-  "extralight",
-  "light",
-  "normal",
-  "medium",
-  "semibold",
-  "bold",
-] as const;
-const GRAD_VARIANTS = ["on-dark", "on-light", "high"] as const;
-const FILL_VARIANTS = ["no-fill", "fill"] as const;
-
-const FONT_REGEX_V3 = `[\\.:]icon-(${FONT_VARIANTS.join("|")})[^{]*\\{(\\s*|[^}]+;\\s*)font-family:\\s*(?!var\\()['"]?(?<value3>[^'";}]+)`;
-const OPSZ_REGEX_V3 = `(?<!\\w|-)--icon-opsz:\\s*(?<value3>-?\\d+)`;
-const WGHT_REGEX_V3 = `(?<!\\w|-)--icon-wght:\\s*(?<value3>-?\\d+)`;
-const GRAD_REGEX_V3 = `(?<!\\w|-)--icon-grad:\\s*(?<value3>-?\\d+)`;
-const FILL_REGEX_V3 = `(?<!\\w|-)--icon-fill:\\s*(?<value3>-?\\d+)`;
+// v3: utilities set literal values (`--icon-opsz: 40`), and `.icon` sets the defaults as
+// `font-family` and as fallbacks (`var(--icon-opsz, 24)`).
+const FONT_REGEX_V3 = `[\\.:]icon(?:-[\\w-]+)?(?![\\w-])[^{]*\\{(\\s*|[^}]+;\\s*)font-family:\\s*(?!var\\()['"]?(?<value3>[^'";}]+)`;
+const OPSZ_REGEX_V3 = `(?<!\\w|-)--icon-opsz[:,]\\s*(?<value3>-?\\d+)`;
+const WGHT_REGEX_V3 = `(?<!\\w|-)--icon-wght[:,]\\s*(?<value3>-?\\d+)`;
+const GRAD_REGEX_V3 = `(?<!\\w|-)--icon-grad[:,]\\s*(?<value3>-?\\d+)`;
+const FILL_REGEX_V3 = `(?<!\\w|-)--icon-fill[:,]\\s*(?<value3>-?\\d+)`;
 const SYMBOLS_REGEX_V3 = `[\\.:]icon-symbol-(?<key3>\\w+)[^{]*\\{(\\s*|[^}]+;\\s*)--icon-symbol:\\s*(?!var\\()['"]?(?<value3>[^'";}]+)`;
 
-const FONT_REGEX_V4 = `(?<!\\w|-)--icon-font-(${FONT_VARIANTS.join("|")}):\\s*['"]?(?<value4>[^'";}]+)`;
-const OPSZ_REGEX_V4 = `(?<!\\w|-)--icon-opsz-(${OPSZ_VARIANTS.join("|")}):\\s*(?<value4>-?\\d+)`;
-const WGHT_REGEX_V4 = `(?<!\\w|-)--icon-wght-(${WGHT_VARIANTS.join("|")}):\\s*(?<value4>-?\\d+)`;
-const GRAD_REGEX_V4 = `(?<!\\w|-)--icon-grad-(${GRAD_VARIANTS.join("|")}):\\s*(?<value4>-?\\d+)`;
-const FILL_REGEX_V4 = `(?<!\\w|-)--icon-fill-(${FILL_VARIANTS.join("|")}):\\s*(?<value4>-?\\d+)`;
+// v4: theme variables are only emitted when used, including custom keys (`--icon-opsz-2xl`).
+const FONT_REGEX_V4 = `(?<!\\w|-)--icon-font-[\\w-]+:\\s*['"]?(?<value4>[^'";}]+)`;
+const OPSZ_REGEX_V4 = `(?<!\\w|-)--icon-opsz-[\\w-]+:\\s*(?<value4>-?\\d+)`;
+const WGHT_REGEX_V4 = `(?<!\\w|-)--icon-wght-[\\w-]+:\\s*(?<value4>-?\\d+)`;
+const GRAD_REGEX_V4 = `(?<!\\w|-)--icon-grad-[\\w-]+:\\s*(?<value4>-?\\d+)`;
+const FILL_REGEX_V4 = `(?<!\\w|-)--icon-fill-[\\w-]+:\\s*(?<value4>-?\\d+)`;
 const SYMBOLS_REGEX_V4 = `(?<!\\w|-)--icon-symbol-(?<key4>\\w+):\\s*['"]?(?<value4>[^'";}]+)`;
 
 const FONT_REGEX = new RegExp(`${FONT_REGEX_V3}|${FONT_REGEX_V4}`, "g");
