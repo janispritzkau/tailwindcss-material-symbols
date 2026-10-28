@@ -10,11 +10,13 @@
     "format": "prettier --write **/src/**",
     "download:material-symbols": "tsx ./scripts/download.ts",
     "update:material-symbols": "tsx ./scripts/update.ts",
+    "changelog": "git-cliff --output CHANGELOG.md",
     "publish:package": "pnpm --filter ./packages/tailwindcss-material-symbols publish --no-git-checks"
   },
   "devDependencies": {
     "@janispritzkau/tailwindcss-material-symbols": "workspace:^",
     "@types/node": "^22.18.8",
+    "git-cliff": "^2.14.2",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tsdown": "^0.15.6",
