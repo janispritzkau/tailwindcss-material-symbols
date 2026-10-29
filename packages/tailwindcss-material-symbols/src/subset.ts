@@ -120,9 +120,3 @@ const WGHT_REGEX = new RegExp(`${WGHT_REGEX_V3}|${WGHT_REGEX_V4}`, "g");
 const GRAD_REGEX = new RegExp(`${GRAD_REGEX_V3}|${GRAD_REGEX_V4}`, "g");
 const FILL_REGEX = new RegExp(`${FILL_REGEX_V3}|${FILL_REGEX_V4}`, "g");
 const SYMBOLS_REGEX = new RegExp(`${SYMBOLS_REGEX_V3}|${SYMBOLS_REGEX_V4}`, "g");
-
-if (import.meta.main) {
-  const css = await readFile(process.argv[2]!, "utf-8");
-  const output = await subsetMaterialSymbols(css);
-  console.log(output);
-}
