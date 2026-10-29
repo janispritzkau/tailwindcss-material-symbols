@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "prebuild": "pnpm run download:material-symbols",
-    "build": "pnpm run \"/^(build-only|type-check)$/\"",
+    "build": "pnpm run build-only && pnpm run type-check",
     "build-only": "pnpm --filter ./packages/tailwindcss-material-symbols build",
     "type-check": "tsc --build",
     "format": "prettier --write **/src/**",
