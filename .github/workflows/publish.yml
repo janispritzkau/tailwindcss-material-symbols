@@ -27,9 +27,27 @@ jobs:
           scope: "@janispritzkau"
           cache: "pnpm"
       - run: npm install -g npm@latest
-      - run: pnpm install
+      - name: Check that the tag matches the package version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION=$(node -p 'require("./packages/tailwindcss-material-symbols/package.json").version')
+          if [[ "$TAG" != "v$VERSION" ]]; then
+            echo "::error::Tag $TAG doesn't match package.json version $VERSION (expected v$VERSION)."
+            exit 1
+          fi
+      - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm publish:package
+      - run: pnpm test
+      - name: Publish to npm
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          # Prereleases (vX.Y.Z-alpha.N, -beta.N, -rc.N) go to the `next` dist-tag,
+          # so `npm install` keeps resolving to the latest stable release.
+          if [[ "$TAG" == *-* ]]; then DIST_TAG=next; else DIST_TAG=latest; fi
+          echo "Publishing $TAG with dist-tag $DIST_TAG"
+          pnpm publish:package --tag "$DIST_TAG"
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
