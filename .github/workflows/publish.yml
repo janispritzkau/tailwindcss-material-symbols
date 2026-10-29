@@ -17,9 +17,8 @@ jobs:
         with:
           # git-cliff needs the full history and tags to generate release notes.
           fetch-depth: 0
+      # Uses the pnpm version from `packageManager` in package.json.
       - uses: pnpm/action-setup@v6
-        with:
-          version: 10
       - uses: actions/setup-node@v7
         with:
           node-version: 22

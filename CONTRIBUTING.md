@@ -5,7 +5,7 @@ Thanks for helping improve `@janispritzkau/tailwindcss-material-symbols`. This g
 ## Requirements
 
 - **Node.js 22.18 or newer.** The scripts rely on `import.meta.main`. CI uses Node 22 and 24.
-- **pnpm 10 or newer.** CI uses pnpm 10.
+- **pnpm 12.** The exact version is pinned in `packageManager` in the root `package.json`, and CI uses it too. With [Corepack](https://github.com/nodejs/corepack) enabled, or a pnpm that manages its own version, you get it automatically.
 
 ## Setup
 
@@ -102,7 +102,7 @@ Releases are published from GitHub Actions ([`.github/workflows/publish.yml`](.g
    git push origin main v0.1.0
    ```
 
-The workflow fails if the tag isn't `v` followed by the `version` in `packages/tailwindcss-material-symbols/package.json`. It runs `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm test`, and `pnpm publish:package` with Node 22 and pnpm 10. Prereleases (versions with a `-`, such as `0.1.0-alpha.0`) are published with the `next` dist-tag, all other versions with `latest`. It authenticates to npm with GitHub OIDC (`id-token: write`), so it doesn't need an npm token. After publishing, it creates a GitHub release for the tag with the same notes as the changelog.
+The workflow fails if the tag isn't `v` followed by the `version` in `packages/tailwindcss-material-symbols/package.json`. It runs `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm test`, and `pnpm publish:package` with Node 22 and the pinned pnpm. Prereleases (versions with a `-`, such as `0.1.0-alpha.0`) are published with the `next` dist-tag, all other versions with `latest`. It authenticates to npm with GitHub OIDC (`id-token: write`), so it doesn't need an npm token. After publishing, it creates a GitHub release for the tag with the same notes as the changelog.
 
 ### Changelog
 

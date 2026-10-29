@@ -2,6 +2,7 @@
   "name": "@janispritzkau/tailwindcss-material-symbols-monorepo",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
     "prebuild": "pnpm run download:material-symbols",
     "build": "pnpm run build-only && pnpm run type-check",
