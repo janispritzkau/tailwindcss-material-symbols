@@ -31,6 +31,6 @@ The fonts come from the `material-symbols` package, pinned to an exact version. 
 
 Run **Actions → Release → Run workflow** (a weekly run does it when a release is worth publishing). [`release.yml`](.github/workflows/release.yml) opens the pull request `chore: bump version to X.Y.Z` from `release/next`, with the changelog and the icon names added and removed. Review it and squash-merge it, keeping its title. [`publish.yml`](.github/workflows/publish.yml) then publishes to npm (prereleases such as `0.1.0-alpha.0` to the `next` dist-tag) and creates the tag and the GitHub release.
 
-`bump: auto` reads the commits; choose `patch`, `minor` or `major`, or enter an exact `version`, to override it. Run the workflow again before merging if commits landed since. The repository needs **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**.
+`bump: auto` reads the commits; choose `patch`, `minor` or `major`, or enter an exact `version`, to override it. Run the workflow again before merging if commits landed since. The workflow pushes and opens the pull request as a GitHub App, so that CI runs on it. The App needs to be installed on the repository with Contents, Pull requests and Issues (read and write), with its client ID in the `BOT_CLIENT_ID` Actions variable and a private key in the `BOT_PRIVATE_KEY` Actions secret.
 
 To release by hand, bump `version` in `packages/tailwindcss-material-symbols/package.json`, run `pnpm changelog --tag vX.Y.Z`, commit both, and push the commit and the tag `vX.Y.Z`. The tag also publishes.

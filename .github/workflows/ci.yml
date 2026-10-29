@@ -2,9 +2,6 @@ name: CI
 
 on:
   pull_request:
-  # The release workflow starts CI on its branch, because a pull request opened with GITHUB_TOKEN
-  # doesn't run the `pull_request` workflows.
-  workflow_dispatch:
   push:
     branches:
       - main
