@@ -1,0 +1,49 @@
+/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+@layer theme {
+  :root, :host {
+    --spacing: 0.25rem;
+    --icon-symbol-home: "\e9b2";
+    --icon-font-outlined: "Material Symbols Outlined";
+    --icon-size-md: calc(var(--spacing) * 6);
+    --icon-opsz-md: 24;
+    --icon-wght-normal: 400;
+    --icon-fill-fill: 1;
+    --icon-fill-no-fill: 0;
+    --icon-grad-on-light: 0;
+    --default-icon-font: var(--icon-font-outlined);
+    --default-icon-size: var(--icon-size-md);
+    --default-icon-opsz: var(--icon-opsz-md);
+    --default-icon-wght: var(--icon-wght-normal);
+    --default-icon-fill: var(--icon-fill-no-fill);
+    --default-icon-grad: var(--icon-grad-on-light);
+  }
+}
+@layer utilities {
+  .icon {
+    box-sizing: content-box;
+    direction: ltr;
+    display: inline-block;
+    font-family: var(--default-icon-font);
+    font-size: var(--default-icon-size);
+    font-style: normal;
+    line-height: 1;
+    text-rendering: optimizeLegibility;
+    user-select: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "opsz" var(--icon-opsz, var(--default-icon-opsz)), "wght" var(--icon-wght, var(--default-icon-wght)), "FILL" var(--icon-fill, var(--default-icon-fill)), "GRAD" var(--icon-grad, var(--default-icon-grad));
+    --tw-content: var(--icon-symbol);
+    &::before {
+      content: var(--icon-symbol);
+    }
+  }
+  .icon-symbol-home {
+    --icon-symbol: var(--icon-symbol-home);
+  }
+  @media (hover: hover) {
+    .hover\:icon-fill:hover {
+      --icon-fill: var(--icon-fill-fill);
+    }
+  }
+}

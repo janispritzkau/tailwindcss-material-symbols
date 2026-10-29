@@ -7,6 +7,8 @@
     "build": "pnpm run build-only && pnpm run type-check",
     "build-only": "pnpm --filter ./packages/tailwindcss-material-symbols build",
     "type-check": "tsc --build",
+    "pretest": "pnpm run download:material-symbols",
+    "test": "pnpm --filter ./packages/tailwindcss-material-symbols test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "download:material-symbols": "tsx ./scripts/download.ts",
