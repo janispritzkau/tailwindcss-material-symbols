@@ -1,4 +1,6 @@
-/packages/tailwindcss-material-symbols/assets
+# Generated from the material-symbols fonts on build and test
+/packages/tailwindcss-material-symbols/src/generated
+/packages/tailwindcss-material-symbols/src/v3/generated
 
 # Logs
 logs

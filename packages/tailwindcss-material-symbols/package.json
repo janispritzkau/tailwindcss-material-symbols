@@ -50,9 +50,7 @@
     "./sharp.css": "./sharp.css"
   },
   "files": [
-    "assets",
     "dist",
-    "LICENSE-FONTS",
     "full.css",
     "outlined.css",
     "rounded.css",
@@ -61,8 +59,10 @@
     "src/generated/codepoints.css"
   ],
   "scripts": {
-    "build": "tsdown",
-    "test": "tsx --test 'test/**/*.test.ts'",
+    "build": "pnpm run generate:codepoints && tsdown",
+    "test": "pnpm run generate:codepoints && tsx --test 'test/**/*.test.ts'",
+    "generate:codepoints": "tsx scripts/generate-codepoints.ts",
+    "diff:codepoints": "tsx scripts/diff-codepoints.ts",
     "generate:fixtures": "tsx test/generate-fixtures.ts"
   },
   "peerDependencies": {
@@ -75,6 +75,7 @@
     }
   },
   "dependencies": {
+    "material-symbols": "0.48.2",
     "subset-font": "^2.4.0"
   },
   "devDependencies": {

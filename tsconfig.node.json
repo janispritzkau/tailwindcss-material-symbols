@@ -5,6 +5,7 @@
     "**/tailwind.config.ts",
     "**/vite.config.ts",
     "scripts/**/*",
+    "packages/*/scripts/**/*",
     "packages/*/test/**/*",
     "**/tsdown.config.ts"
   ],
