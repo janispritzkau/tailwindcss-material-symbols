@@ -10,7 +10,7 @@
   "devDependencies": {
     "@janispritzkau/tailwindcss-material-symbols": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
-    "tailwindcss": "^4.3.3",
+    "tailwindcss": "^3.4.19",
     "vite": "^8.3.5"
   }
 }
