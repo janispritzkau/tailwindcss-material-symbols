@@ -1,0 +1,5 @@
+@import "tailwindcss";
+@import "@janispritzkau/tailwindcss-material-symbols";
+
+/* The shadow root has its own stylesheet (`shadow.css`). */
+@source not "./shadow.ts";

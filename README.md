@@ -38,8 +38,7 @@ For Tailwind v3, the CLI, and all utilities and options, see the [package README
 | Path                                                                             | Contents                                                                |
 | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | [`packages/tailwindcss-material-symbols`](packages/tailwindcss-material-symbols) | The published package: Tailwind plugin/CSS, Vite plugin, CLI, subsetter |
-| [`examples/tailwindcss-v4`](examples/tailwindcss-v4)                             | Vue + Vite example with Tailwind v4                                     |
-| [`examples/tailwindcss-v3`](examples/tailwindcss-v3)                             | Vue + Vite example with Tailwind v3 (PostCSS)                           |
+| [`examples/vite`](examples/vite)                                                 | Plain Vite example with Tailwind v4                                     |
 | [`scripts`](scripts)                                                             | Scripts that download and update the upstream fonts and codepoints      |
 
 ## Contributing
