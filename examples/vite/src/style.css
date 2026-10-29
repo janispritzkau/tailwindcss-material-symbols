@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "@janispritzkau/tailwindcss-material-symbols";
 
-/* The shadow root has its own stylesheet (`shadow.css`). */
-@source not "./shadow.ts";
+/*
+ * Tailwind also scans `shadow.ts` for this stylesheet. Inside a shadow root, browsers only use the
+ * document's fonts, so the fonts of this stylesheet must include the shadow root's symbols.
+ */

@@ -10,7 +10,7 @@
 - Works with Tailwind CSS v4 (CSS import) and v3 (plugin, [deprecated](#tailwind-css-v3-deprecated)).
 - One `icon-symbol-*` utility for every Material Symbol.
 - Utilities for the font's variable axes: fill, weight, grade, and optical size. They compose with any Tailwind variant (`hover:`, `dark:`, `group-hover:`, `before:`, …).
-- The Vite plugin uses the full fonts in development. For production builds it subsets them to the symbols and axis ranges your CSS uses, so you ship a few KB instead of several MB.
+- The Vite plugin uses the full fonts in development. For production builds it subsets them to the symbols and axis ranges your CSS uses, so you ship a few KB instead of several MB. It needs no options and no `index.html`.
 - A CLI and a Node API do the same subsetting outside Vite.
 
 ## Contents
@@ -255,24 +255,22 @@ import tailwindcss from "@tailwindcss/vite";
 import materialSymbols from "@janispritzkau/tailwindcss-material-symbols/vite";
 
 export default defineConfig({
-  plugins: [tailwindcss(), materialSymbols({ include: ["./src/style.css"] })],
+  plugins: [tailwindcss(), materialSymbols()],
 });
 ```
 
 With Tailwind v3, add the plugin the same way and leave out `@tailwindcss/vite`. Tailwind runs through PostCSS in that case.
 
-**Options**
-
-| Option    | Type       | Description                                                                                                                                                   |
-| --------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `include` | `string[]` | Required. The stylesheets that contain your Tailwind output, usually the file with `@import "tailwindcss"` or `@tailwind utilities`. Vite resolves the paths. |
+The plugin has no options. The `include` option of earlier versions is deprecated and ignored.
 
 **How it works**
 
-- **`vite` (dev server):** injects the full fonts into `index.html` so every symbol and axis value works without a rebuild.
-- **`vite build`:** waits until Tailwind has generated the CSS for each `include`d file, then finds the `icon-symbol-*` symbols, font styles, and axis values in that CSS. It subsets each used font style to those glyphs and axis ranges and emits the result as `material-symbols-<style>.woff2` assets. The matching `@font-face` rules are injected through `index.html`.
+The plugin adds `@font-face` rules to every CSS module that uses icons, including `?inline` imports. It doesn't need an `index.html`, so it also works with frameworks that render their own HTML, such as SvelteKit.
 
-The plugin injects through `index.html`, so it needs an HTML entry. For other setups, use the [CLI](#cli) or the [Node API](#node-api).
+- **`vite` (dev server):** the rules load the full fonts, so every symbol and axis value works without a restart.
+- **`vite build`:** the plugin finds the `icon-symbol-*` symbols, font styles, and axis values in the module's CSS and subsets each used font style to them. Fonts below `build.assetsInlineLimit` are inlined as `data:` URLs, larger ones are emitted as `material-symbols-<style>.woff2` assets. Each stylesheet gets its own subsets, so code-split CSS only loads the glyphs it uses.
+
+**Shadow DOM:** browsers only use the document's fonts inside a shadow root, and ignore `@font-face` rules in the shadow root's own stylesheets. If a shadow root has its own stylesheet (for example from `?inline`), make sure that a stylesheet in the document uses the same symbols, for example by letting Tailwind scan the shadow root's source files there as well (`@source`).
 
 ## CLI
 
@@ -299,10 +297,10 @@ import subsetMaterialSymbols from "@janispritzkau/tailwindcss-material-symbols/s
 
 const css = await readFile("dist/style.css", "utf-8");
 const fonts = await subsetMaterialSymbols(css);
-// => { outlined?: Buffer, rounded?: Buffer, sharp?: Buffer } (woff2)
+// => [{ fontFamily: "Material Symbols Outlined", fileName: "material-symbols-outlined.woff2", source: Buffer }, …] (woff2)
 
-for (const [style, data] of Object.entries(fonts)) {
-  await writeFile(`dist/material-symbols-${style}.woff2`, data);
+for (const font of fonts) {
+  await writeFile(`dist/${font.fileName}`, font.source);
 }
 ```
 

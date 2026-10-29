@@ -23,6 +23,7 @@ pnpm build
   - `src/v3/`: deprecated Tailwind v3 plugin, exported as `./v3` and as the `node` condition of `.`. Its detection rules are in `src/detect-v3.ts`. To remove v3 support, delete both, the `./v3` export and the v3 test fixtures.
   - `src/vite.ts`: Vite plugin
   - `src/subset.ts`: font subsetting, used by the Vite plugin and the CLI
+  - `src/font-face.ts`: `@font-face` rules, used by the Vite plugin and the CLI
   - `src/detect-v4.ts`, `src/detect-v3.ts`: detection of the used symbols, styles and axis values in Tailwind v4 and v3 output
   - `src/cli.ts`: `tailwindcss-material-symbols` CLI
   - `src/generated/`, `src/v3/generated/`: codepoint maps, generated from the fonts on every build and test (gitignored)
@@ -39,16 +40,16 @@ The package is built with [tsdown](https://tsdown.dev). The CSS entry is not bui
 
 Run these from the repository root:
 
-| Command                | Description                                                                                                           |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `pnpm build`           | Runs `build-only` and `type-check`.                                                                                   |
-| `pnpm build-only`      | Generates the codepoint maps and builds the package with tsdown into `packages/tailwindcss-material-symbols/dist`.    |
-| `pnpm type-check`      | Runs `tsc --build` on the package sources, the scripts and the config files.                                          |
-| `pnpm test`            | Generates the codepoint maps, then runs the package tests and the tests of `scripts/` (`pnpm test:scripts`).          |
-| `pnpm test:example`    | Builds the example and checks that each font style has a small subset font (< 20 KB). Run `pnpm build` first.         |
-| `pnpm format`          | Formats the repository with Prettier. `pnpm format:check` only checks.                                                |
-| `pnpm changelog`       | Regenerates `CHANGELOG.md` from the commit history. Pass `--tag vX.Y.Z` to put unreleased changes under that version. |
-| `pnpm publish:package` | Publishes the package to npm. Normally run by CI only.                                                                |
+| Command                | Description                                                                                                                                                                 |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm build`           | Runs `build-only` and `type-check`.                                                                                                                                         |
+| `pnpm build-only`      | Generates the codepoint maps and builds the package with tsdown into `packages/tailwindcss-material-symbols/dist`.                                                          |
+| `pnpm type-check`      | Runs `tsc --build` on the package sources, the scripts and the config files.                                                                                                |
+| `pnpm test`            | Generates the codepoint maps, then runs the package tests and the tests of `scripts/` (`pnpm test:scripts`).                                                                |
+| `pnpm test:example`    | Builds the example and checks that each font style has a small subset font (< 20 KB), and that the document font contains the shadow root's symbol. Run `pnpm build` first. |
+| `pnpm format`          | Formats the repository with Prettier. `pnpm format:check` only checks.                                                                                                      |
+| `pnpm changelog`       | Regenerates `CHANGELOG.md` from the commit history. Pass `--tag vX.Y.Z` to put unreleased changes under that version.                                                       |
+| `pnpm publish:package` | Publishes the package to npm. Normally run by CI only.                                                                                                                      |
 
 `pnpm test` checks the subset detection (`src/subset.ts`) against real Tailwind v3 and v4 output in `packages/tailwindcss-material-symbols/test/fixtures/`. After changing `src/v3/index.ts` or `src/index.css`, regenerate the fixtures with `pnpm --filter ./packages/tailwindcss-material-symbols generate:fixtures` and review the diff.
 
@@ -58,7 +59,7 @@ To check a change end to end, run `pnpm build` and build the example:
 pnpm --filter ./examples/vite build
 ```
 
-In the build output, you should see a small `material-symbols-<style>.woff2` asset (a few KB) for each font style the example uses. `pnpm test:example` builds the example and checks this for you.
+In the build output, you should see a small `material-symbols-<style>.woff2` asset (a few KB) for each font style the example uses. Fonts below `build.assetsInlineLimit` are inlined into the CSS instead. `pnpm test:example` builds the example and checks this for you.
 
 To try the example in the browser:
 

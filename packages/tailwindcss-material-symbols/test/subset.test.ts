@@ -18,10 +18,18 @@ test("subsets the fonts to the detected symbols and axis ranges", async () => {
     "utf-8",
   );
   const output = await subsetMaterialSymbols(css);
-  assert.deepEqual(Object.keys(output).sort(), ["outlined", "rounded"]);
+  assert.deepEqual(
+    output
+      .map(({ fontFamily, fileName }) => ({ fontFamily, fileName }))
+      .sort((a, b) => a.fileName.localeCompare(b.fileName)),
+    [
+      { fontFamily: "Material Symbols Outlined", fileName: "material-symbols-outlined.woff2" },
+      { fontFamily: "Material Symbols Rounded", fileName: "material-symbols-rounded.woff2" },
+    ],
+  );
 
-  for (const data of Object.values(output)) {
-    const font = fontkit.create(data!) as fontkit.Font;
+  for (const { source } of output) {
+    const font = fontkit.create(source) as fontkit.Font;
     assert.ok(font.characterSet.includes(codepoint("home")));
     assert.ok(font.characterSet.includes(codepoint("2d_2")));
     assert.ok(!font.characterSet.includes(codepoint("search")));
@@ -38,4 +46,12 @@ test("subsets the fonts to the detected symbols and axis ranges", async () => {
       opsz: { min: 24, max: 48 },
     });
   }
+});
+
+test("detects the symbols in unminified Tailwind v4 output", async () => {
+  // The v3 rules must not match `--icon-symbol: var(--icon-symbol-home)` after the space.
+  const css = readFileSync(resolve(import.meta.dirname, "fixtures/v4/default.css"), "utf-8");
+  const [output] = await subsetMaterialSymbols(css);
+  const font = fontkit.create(output!.source) as fontkit.Font;
+  assert.ok(font.characterSet.includes(codepoint("home")));
 });
