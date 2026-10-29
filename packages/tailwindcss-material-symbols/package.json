@@ -28,9 +28,13 @@
   },
   "exports": {
     ".": {
-      "node": "./dist/index.js",
+      "node": "./dist/v3/index.js",
       "style": "./src/index.css",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/v3/index.d.ts"
+    },
+    "./v3": {
+      "import": "./dist/v3/index.js",
+      "types": "./dist/v3/index.d.ts"
     },
     "./subset": {
       "import": "./dist/subset.js",

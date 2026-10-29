@@ -2,6 +2,12 @@ import defaultTheme from "tailwindcss/defaultTheme";
 import plugin from "tailwindcss/plugin";
 import codepoints from "./generated/codepoints";
 
+/**
+ * Tailwind CSS v3 plugin.
+ *
+ * @deprecated Tailwind CSS v3 support will be removed in a future minor version. With Tailwind CSS
+ * v4, use `@import "@janispritzkau/tailwindcss-material-symbols";` in your stylesheet instead.
+ */
 const materialSymbols = plugin(
   ({ addBase, addUtilities, matchUtilities, theme, config }) => {
     // Attribute selector so that Tailwind doesn't treat it as part of the `icon` utility and

@@ -7,7 +7,7 @@
 <span class="icon icon-symbol-favorite icon-rounded icon-fill icon-lg text-red-500"></span>
 ```
 
-- Works with Tailwind CSS v4 (CSS import) and v3 (plugin).
+- Works with Tailwind CSS v4 (CSS import) and v3 (plugin, [deprecated](#tailwind-css-v3-deprecated)).
 - One `icon-symbol-*` utility for every Material Symbol.
 - Utilities for the font's variable axes: fill, weight, grade, and optical size. They compose with any Tailwind variant (`hover:`, `dark:`, `group-hover:`, `before:`, …).
 - The Vite plugin uses the full fonts in development. For production builds it subsets them to the symbols and axis ranges your CSS uses, so you ship a few KB instead of several MB.
@@ -18,7 +18,7 @@
 - [Installation](#installation)
 - [Setup](#setup)
   - [Tailwind CSS v4](#tailwind-css-v4)
-  - [Tailwind CSS v3](#tailwind-css-v3)
+  - [Tailwind CSS v3 (deprecated)](#tailwind-css-v3-deprecated)
   - [Loading the fonts](#loading-the-fonts)
 - [Usage](#usage)
 - [Utility reference](#utility-reference)
@@ -50,14 +50,17 @@ Import the utilities after Tailwind in your main stylesheet:
 @import "@janispritzkau/tailwindcss-material-symbols";
 ```
 
-### Tailwind CSS v3
+### Tailwind CSS v3 (deprecated)
+
+> [!WARNING]
+> Tailwind CSS v3 support is deprecated and will be removed in a future minor version. It still works, but new features target Tailwind CSS v4 only.
 
 Add the plugin to your Tailwind config:
 
 ```ts
 // tailwind.config.ts
 import type { Config } from "tailwindcss";
-import materialSymbols from "@janispritzkau/tailwindcss-material-symbols";
+import materialSymbols from "@janispritzkau/tailwindcss-material-symbols/v3";
 
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx,vue}"],
@@ -65,7 +68,7 @@ export default {
 } satisfies Config;
 ```
 
-The plugin adds one rule to the base layer, so your CSS needs `@tailwind base`.
+The plugin is also the default export of `@janispritzkau/tailwindcss-material-symbols` in Node, so existing configs keep working. It adds one rule to the base layer, so your CSS needs `@tailwind base`.
 
 ### Loading the fonts
 
@@ -221,7 +224,7 @@ All values are theme variables. Override or add them in your own `@theme` block:
 | `--icon-grad-*`    | `on-light`, `on-dark`, `high`                                         | `icon-<grade>`                    |
 | `--default-icon-*` | `font`, `size`, `opsz`, `wght`, `fill`, `grad`                        | `icon`                            |
 
-### Tailwind CSS v3
+### Tailwind CSS v3 (deprecated)
 
 The plugin reads the `icon` theme key. Each group has a `DEFAULT` entry that `icon` uses:
 
