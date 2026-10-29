@@ -39,3 +39,11 @@ test("subsets the fonts to the detected symbols and axis ranges", async () => {
     });
   }
 });
+
+test("detects the symbols in unminified Tailwind v4 output", async () => {
+  // The v3 rules must not match `--icon-symbol: var(--icon-symbol-home)` after the space.
+  const css = readFileSync(resolve(import.meta.dirname, "fixtures/v4/default.css"), "utf-8");
+  const output = await subsetMaterialSymbols(css);
+  const font = fontkit.create(output.outlined!) as fontkit.Font;
+  assert.ok(font.characterSet.includes(codepoint("home")));
+});
