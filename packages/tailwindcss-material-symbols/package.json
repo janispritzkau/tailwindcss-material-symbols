@@ -29,7 +29,7 @@
   "exports": {
     ".": {
       "node": "./dist/index.js",
-      "style": "./dist/index.css",
+      "style": "./src/index.css",
       "types": "./dist/index.d.ts"
     },
     "./subset": {
@@ -52,7 +52,9 @@
     "full.css",
     "outlined.css",
     "rounded.css",
-    "sharp.css"
+    "sharp.css",
+    "src/index.css",
+    "src/generated/codepoints.css"
   ],
   "scripts": {
     "build": "tsdown"
