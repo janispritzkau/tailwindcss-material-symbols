@@ -1,17 +1,62 @@
 name: Publish Package
 
+# Publishes a release in one of two cases:
+# - A push to main that bumps the version and has no tag yet. That's the merge of the pull request
+#   that release.yml opens. The workflow creates the tag together with the GitHub release.
+# - A pushed `v*` tag, for releases that are tagged by hand.
+
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
 
-permissions:
-  contents: write
-  id-token: write
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
-  publish:
+  detect:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      publish: ${{ steps.detect.outputs.publish }}
+      tag: ${{ steps.detect.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: detect
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            TAG="$GITHUB_REF_NAME"
+            PUBLISH=true
+          else
+            VERSION=$(node -p 'require("./packages/tailwindcss-material-symbols/package.json").version')
+            TAG="v$VERSION"
+            SUBJECT=$(git log -1 --format=%s)
+            # A bump commit whose version has no tag yet. Other pushes to main don't publish.
+            if [[ "$SUBJECT" == "chore: bump version to "* ]] && [[ -z "$(git ls-remote --tags origin "refs/tags/$TAG")" ]]; then
+              PUBLISH=true
+            else
+              PUBLISH=false
+            fi
+          fi
+          echo "publish=$PUBLISH tag=$TAG"
+          echo "publish=$PUBLISH" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: detect
+    if: needs.detect.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      TAG: ${{ needs.detect.outputs.tag }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -27,8 +72,6 @@ jobs:
           cache: "pnpm"
       - run: npm install -g npm@latest
       - name: Check that the tag matches the package version
-        env:
-          TAG: ${{ github.ref_name }}
         run: |
           VERSION=$(node -p 'require("./packages/tailwindcss-material-symbols/package.json").version')
           if [[ "$TAG" != "v$VERSION" ]]; then
@@ -39,8 +82,6 @@ jobs:
       - run: pnpm build
       - run: pnpm test
       - name: Publish to npm
-        env:
-          TAG: ${{ github.ref_name }}
         run: |
           # Prereleases (vX.Y.Z-alpha.N, -beta.N, -rc.N) go to the `next` dist-tag,
           # so `npm install` keeps resolving to the latest stable release.
@@ -50,14 +91,21 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
         run: |
+          # A pushed tag already exists. Otherwise the release creates it at this commit.
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            TAG_FLAGS=(--verify-tag)
+          else
+            TAG_FLAGS=(--target "$GITHUB_SHA")
+          fi
           # cliff.toml only treats stable vX.Y.Z tags as releases, so prereleases
           # get the commits since the last stable release.
           if [[ "$TAG" == *-* ]]; then
             pnpm exec git-cliff --unreleased --tag "$TAG" --strip all --output RELEASE_NOTES.md
-            gh release create "$TAG" --verify-tag --prerelease --title "$TAG" --notes-file RELEASE_NOTES.md
+            gh release create "$TAG" "${TAG_FLAGS[@]}" --prerelease --title "$TAG" --notes-file RELEASE_NOTES.md
           else
+            # git-cliff reads the section of the release from its tag, so it needs a local one.
+            git rev-parse -q --verify "refs/tags/$TAG" > /dev/null || git tag "$TAG"
             pnpm exec git-cliff --current --strip all --output RELEASE_NOTES.md
-            gh release create "$TAG" --verify-tag --title "$TAG" --notes-file RELEASE_NOTES.md
+            gh release create "$TAG" "${TAG_FLAGS[@]}" --title "$TAG" --notes-file RELEASE_NOTES.md
           fi
