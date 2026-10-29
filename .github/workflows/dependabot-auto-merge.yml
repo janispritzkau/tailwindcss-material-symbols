@@ -1,0 +1,122 @@
+name: Dependabot auto-merge
+
+# Enables auto-merge on Dependabot pull requests that scripts/dependabot-auto-merge.ts allows. GitHub
+# merges them once the required checks pass, so this needs "Allow auto-merge" and a required `ci`
+# check on main. Without a required check, `gh pr merge --auto` merges right away.
+#
+# Workflows triggered by Dependabot get a read-only GITHUB_TOKEN and no Actions secrets. The
+# `permissions` key can raise the token's access on `pull_request`, which is what the `merge` job
+# does. The `decide` job, which installs and runs the pull request's code, stays read-only.
+on: pull_request
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  decide:
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'janispritzkau/tailwindcss-material-symbols'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      action: ${{ steps.decide.outputs.action }}
+      message: ${{ steps.decide.outputs.message }}
+    steps:
+      - id: metadata
+        uses: dependabot/fetch-metadata@v3
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # Same diff as the `names-diff` job in ci.yml, against the base branch's material-symbols.
+      - name: Compare the material-symbols versions
+        id: versions
+        if: contains(fromJSON(steps.metadata.outputs.updated-dependencies-json).*.dependencyName, 'material-symbols')
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PACKAGE_JSON: packages/tailwindcss-material-symbols/package.json
+        run: |
+          git fetch --depth=1 origin "$BASE_SHA"
+          BASE=$(git show "$BASE_SHA:$PACKAGE_JSON" | jq -r '.dependencies["material-symbols"] // empty')
+          HEAD=$(jq -r '.dependencies["material-symbols"] // empty' "$PACKAGE_JSON")
+          echo "material-symbols: base ${BASE:-none}, head ${HEAD:-none}"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          echo "head=$HEAD" >> "$GITHUB_OUTPUT"
+      - uses: pnpm/action-setup@v4
+        if: steps.versions.outputs.base && steps.versions.outputs.head
+        with:
+          version: 10
+      - name: Diff the icon names
+        if: steps.versions.outputs.base && steps.versions.outputs.head
+        env:
+          BASE: ${{ steps.versions.outputs.base }}
+        run: |
+          # The diff only needs fontkit, tsx and the fonts, so no install scripts run.
+          pnpm install --frozen-lockfile --ignore-scripts
+          mkdir -p "$RUNNER_TEMP/base"
+          npm pack "material-symbols@$BASE" --pack-destination "$RUNNER_TEMP/base" --silent
+          tar -xzf "$RUNNER_TEMP/base/material-symbols-$BASE.tgz" -C "$RUNNER_TEMP/base"
+          pnpm --silent --filter ./packages/tailwindcss-material-symbols \
+            exec tsx scripts/diff-codepoints.ts "$RUNNER_TEMP/base/package" > "$RUNNER_TEMP/names-diff.json"
+          cat "$RUNNER_TEMP/names-diff.json"
+
+      - name: Decide
+        id: decide
+        env:
+          UPDATED_DEPENDENCIES_JSON: ${{ steps.metadata.outputs.updated-dependencies-json }}
+          NAMES_DIFF: ${{ runner.temp }}/names-diff.json
+          MATERIAL_SYMBOLS_SPEC: ${{ steps.versions.outputs.head }}
+        # Node 24 runs the TypeScript file directly. The script only imports Node built-ins.
+        run: node scripts/dependabot-auto-merge.ts
+
+  merge:
+    needs: decide
+    runs-on: ubuntu-latest
+    permissions:
+      # Enabling auto-merge needs write access to contents and pull requests.
+      contents: write
+      pull-requests: write
+      # Creating the `icons-removed` label.
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      MESSAGE: ${{ needs.decide.outputs.message }}
+    # No checkout: this job doesn't run any code from the pull request.
+    steps:
+      - name: Enable auto-merge
+        if: needs.decide.outputs.action == 'merge'
+        run: gh pr merge "$PR" --auto --squash
+      - name: Disable auto-merge
+        if: needs.decide.outputs.action != 'merge'
+        # Auto-merge may be on from an earlier push to the pull request.
+        run: gh pr merge "$PR" --disable-auto || true
+      - name: Label the removed icon names
+        if: needs.decide.outputs.action == 'icons-removed' && !contains(github.event.pull_request.labels.*.name, 'icons-removed')
+        run: |
+          gh label create icons-removed --force --color d93f0b \
+            --description "A material-symbols update that removes icon names (breaking change)"
+          gh api "repos/$GH_REPO/issues/$PR/labels" -f "labels[]=icons-removed" --silent
+      - name: Ask the owner for a review
+        if: needs.decide.outputs.action != 'merge'
+        env:
+          OWNER: ${{ github.repository_owner }}
+        # The mention is the notification. One comment per pull request: Dependabot's rebases run
+        # this workflow again.
+        run: |
+          MARKER="<!-- dependabot-auto-merge -->"
+          if gh pr view "$PR" --json comments --jq '.comments[].body' | grep -qF "$MARKER"; then
+            exit 0
+          fi
+          gh pr comment "$PR" --body "$MARKER
+          @$OWNER this update needs a decision.
+
+          $MESSAGE"

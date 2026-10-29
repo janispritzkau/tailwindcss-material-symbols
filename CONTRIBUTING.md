@@ -30,6 +30,7 @@ pnpm build
   - `full.css`, `outlined.css`, `rounded.css`, `sharp.css`: `@font-face` rules for the full fonts
 - `examples/vite/`: plain Vite + Tailwind v4 example that uses the workspace package
 - `scripts/check-example.ts`: checks the example build, used by `pnpm test:example`
+- `scripts/dependabot-auto-merge.ts`: decides which Dependabot pull requests are merged automatically
 
 The package is built with [tsdown](https://tsdown.dev). The CSS entry is not built: the `style` export points at `src/index.css`, which imports `src/generated/codepoints.css`.
 
@@ -42,7 +43,7 @@ Run these from the repository root:
 | `pnpm build`           | Runs `build-only` and `type-check`.                                                                                   |
 | `pnpm build-only`      | Generates the codepoint maps and builds the package with tsdown into `packages/tailwindcss-material-symbols/dist`.    |
 | `pnpm type-check`      | Runs `tsc --build` on the package sources, the scripts and the config files.                                          |
-| `pnpm test`            | Generates the codepoint maps, then runs the package tests.                                                            |
+| `pnpm test`            | Generates the codepoint maps, then runs the package tests and the tests of `scripts/` (`pnpm test:scripts`).          |
 | `pnpm test:example`    | Builds the example and checks that each font style has a small subset font (< 20 KB). Run `pnpm build` first.         |
 | `pnpm format`          | Formats the repository with Prettier. `pnpm format:check` only checks.                                                |
 | `pnpm changelog`       | Regenerates `CHANGELOG.md` from the commit history. Pass `--tag vX.Y.Z` to put unreleased changes under that version. |
@@ -70,6 +71,8 @@ The example loads the package from `dist`. After you change the package source, 
 ## Fonts and codepoints
 
 The fonts come from the [`material-symbols`](https://www.npmjs.com/package/material-symbols) package, pinned to an exact version in `packages/tailwindcss-material-symbols/package.json`. The name → codepoint maps aren't committed: `scripts/generate-codepoints.ts` (`pnpm --filter ./packages/tailwindcss-material-symbols generate:codepoints`, run by the package's `build` and `test`) reads them from the fonts' ligature and cmap tables, fails if the three styles disagree or a ligature has no codepoint, and prints the number of names and the names added or removed since its previous run. To update the fonts, bump the `material-symbols` version. On pull requests, CI lists the added and removed names in the job summary of the `names-diff` job (`scripts/diff-codepoints.ts`) and warns about removed names, which are a breaking change.
+
+Dependabot ([`.github/dependabot.yml`](.github/dependabot.yml)) opens the updates. [`.github/workflows/dependabot-auto-merge.yml`](.github/workflows/dependabot-auto-merge.yml) enables auto-merge, so they're merged once CI passes, for `material-symbols` bumps that remove no names and for patch and minor updates of devDependencies and GitHub Actions. Updates that aren't merged automatically get a comment that mentions the repository owner, with the reasons. Bumps that remove names also get the `icons-removed` label and the names in the comment. Runtime dependencies and majors are left for review. The commit messages of the updates use Conventional Commits (`build(deps):`, `build(deps-dev):`, `ci(deps):`), so they show up in the changelog. Merged updates reach users only with the next release.
 
 ## Releasing
 
