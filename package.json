@@ -2,6 +2,7 @@
   "name": "@janispritzkau/tailwindcss-material-symbols-monorepo",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
     "prebuild": "pnpm run download:material-symbols",
     "build": "pnpm run build-only && pnpm run type-check",
@@ -9,6 +10,7 @@
     "type-check": "tsc --build",
     "pretest": "pnpm run download:material-symbols",
     "test": "pnpm --filter ./packages/tailwindcss-material-symbols test",
+    "test:example": "pnpm --filter ./examples/vite build && tsx ./scripts/check-example.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "download:material-symbols": "tsx ./scripts/download.ts",

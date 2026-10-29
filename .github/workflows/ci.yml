@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: checks (node ${{ matrix.node }}, vite ${{ matrix.vite }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+        # The example's Vite version. The package's peer range covers both.
+        vite: [7, 8]
+    steps:
+      - uses: actions/checkout@v7
+      # Uses the pnpm version from `packageManager` in package.json.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      # Builds the package, then type-checks the repository against dist/*.d.ts.
+      - run: pnpm build
+      - run: pnpm format:check
+      - run: pnpm test
+      - name: Use Vite ${{ matrix.vite }} in the example
+        run: pnpm --filter ./examples/vite add --save-dev "vite@^${{ matrix.vite }}"
+      - run: pnpm test:example
+
+  # Single, stable check name for branch protection and auto-merge.
+  ci:
+    if: always()
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        env:
+          RESULT: ${{ needs.checks.result }}
+        run: |
+          echo "checks: $RESULT"
+          [[ "$RESULT" == "success" ]]

@@ -4,8 +4,8 @@ Thanks for helping improve `@janispritzkau/tailwindcss-material-symbols`. This g
 
 ## Requirements
 
-- **Node.js 22.18 or newer.** The scripts rely on `import.meta.main`. CI uses Node 22.
-- **pnpm 10 or newer.** CI uses pnpm 10.
+- **Node.js 22.18 or newer.** The scripts rely on `import.meta.main`. CI uses Node 22 and 24.
+- **pnpm 12.** The exact version is pinned in `packageManager` in the root `package.json`, and CI uses it too. With [Corepack](https://github.com/nodejs/corepack) enabled, or a pnpm that manages its own version, you get it automatically.
 
 ## Setup
 
@@ -39,10 +39,11 @@ Run these from the repository root:
 
 | Command                          | Description                                                                                                              |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `pnpm build`                     | Runs `download:material-symbols`, then `build-only` and `type-check` in parallel.                                        |
+| `pnpm build`                     | Runs `download:material-symbols`, then `build-only` and `type-check`.                                                    |
 | `pnpm build-only`                | Builds the package with tsdown into `packages/tailwindcss-material-symbols/dist`.                                        |
 | `pnpm type-check`                | Runs `tsc --build` on the package sources, `scripts/` and the config files.                                              |
 | `pnpm test`                      | Downloads the fonts if needed, then runs the package tests.                                                              |
+| `pnpm test:example`              | Builds the example and checks that each font style has a small subset font (< 20 KB). Run `pnpm build` first.            |
 | `pnpm format`                    | Formats the repository with Prettier. `pnpm format:check` only checks.                                                   |
 | `pnpm download:material-symbols` | Downloads the fonts pinned in `version.json` into `assets/`. Does nothing if the existing files match the pinned hashes. |
 | `pnpm update:material-symbols`   | Updates to the latest upstream fonts and codepoints. See below.                                                          |
@@ -57,7 +58,7 @@ To check a change end to end, run `pnpm build` and build the example:
 pnpm --filter ./examples/vite build
 ```
 
-In the build output, you should see a small `material-symbols-<style>.woff2` asset (a few KB) for each font style the example uses.
+In the build output, you should see a small `material-symbols-<style>.woff2` asset (a few KB) for each font style the example uses. `pnpm test:example` builds the example and checks this for you.
 
 To try the example in the browser:
 
@@ -101,7 +102,7 @@ Releases are published from GitHub Actions ([`.github/workflows/publish.yml`](.g
    git push origin main v0.1.0
    ```
 
-The workflow runs `pnpm install`, `pnpm build`, and `pnpm publish:package` with Node 22 and pnpm 10. It authenticates to npm with GitHub OIDC (`id-token: write`), so it doesn't need an npm token. After publishing, it creates a GitHub release for the tag with the same notes as the changelog.
+The workflow fails if the tag isn't `v` followed by the `version` in `packages/tailwindcss-material-symbols/package.json`. It runs `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm test`, and `pnpm publish:package` with Node 22 and the pinned pnpm. Prereleases (versions with a `-`, such as `0.1.0-alpha.0`) are published with the `next` dist-tag, all other versions with `latest`. It authenticates to npm with GitHub OIDC (`id-token: write`), so it doesn't need an npm token. After publishing, it creates a GitHub release for the tag with the same notes as the changelog.
 
 ### Changelog
 
@@ -111,5 +112,5 @@ The workflow runs `pnpm install`, `pnpm build`, and `pnpm publish:package` with 
 
 - Branch from `main` and keep each pull request focused on one change.
 - Use [Conventional Commits](https://www.conventionalcommits.org) prefixes for commit messages, as the history does: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`.
-- Run `pnpm format` and `pnpm build`, and build the example before you open a pull request.
+- Run `pnpm format`, `pnpm build`, `pnpm test`, and `pnpm test:example` before you open a pull request. CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the same checks on every pull request, with Node 22 and 24 and with Vite 7 and 8 in the example.
 - If you change utilities or options, update the [package README](packages/tailwindcss-material-symbols/README.md). The package README is the documentation published on npm.
