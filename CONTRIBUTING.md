@@ -14,7 +14,7 @@ pnpm install
 pnpm build
 ```
 
-`pnpm build` first downloads the Material Symbols fonts (see [Fonts and codepoints](#fonts-and-codepoints)), then builds the package and type-checks the repository. You need to build before the examples work, because they use the package's `dist` output.
+`pnpm build` first downloads the Material Symbols fonts (see [Fonts and codepoints](#fonts-and-codepoints)), then builds the package and type-checks the repository. You need to build before the example works, because it uses the package's `dist` output.
 
 ## Repository layout
 
@@ -28,7 +28,7 @@ pnpm build
   - `full.css`, `outlined.css`, `rounded.css`, `sharp.css`: `@font-face` rules for the full fonts
   - `version.json`: pinned upstream commit and SHA-256 hashes of the fonts
   - `assets/`: downloaded fonts (gitignored)
-- `examples/tailwindcss-v4/`, `examples/tailwindcss-v3/`: Vue + Vite example apps that use the workspace package
+- `examples/vite/`: plain Vite + Tailwind v4 example that uses the workspace package
 - `scripts/download.ts`, `scripts/update.ts`: font download and update scripts
 
 The package is built with [tsdown](https://tsdown.dev). The CSS entry is not built: the `style` export points at `src/index.css`, which imports `src/generated/codepoints.css`.
@@ -48,23 +48,22 @@ Run these from the repository root:
 | `pnpm changelog`                 | Regenerates `CHANGELOG.md` from the commit history. Pass `--tag vX.Y.Z` to put unreleased changes under that version.    |
 | `pnpm publish:package`           | Publishes the package to npm. Normally run by CI only.                                                                   |
 
-There is no test suite. To check a change, run `pnpm build` and build both examples:
+There is no test suite. To check a change, run `pnpm build` and build the example:
 
 ```bash
-pnpm --filter ./examples/tailwindcss-v4 build
-pnpm --filter ./examples/tailwindcss-v3 build
+pnpm --filter ./examples/vite build
 ```
 
 In the build output, you should see a small `material-symbols-<style>.woff2` asset (a few KB) for each font style the example uses.
 
-To try the examples in the browser:
+To try the example in the browser:
 
 ```bash
-pnpm --filter ./examples/tailwindcss-v4 dev
-pnpm --filter ./examples/tailwindcss-v3 dev
+pnpm --filter ./examples/vite dev
+pnpm --filter ./examples/vite preview # after a build
 ```
 
-The examples load the package from `dist`. After you change the package source, run `pnpm build-only` again.
+The example loads the package from `dist`. After you change the package source, run `pnpm build-only` again.
 
 ## Fonts and codepoints
 
@@ -109,5 +108,5 @@ The workflow runs `pnpm install`, `pnpm build`, and `pnpm publish:package` with 
 
 - Branch from `main` and keep each pull request focused on one change.
 - Use [Conventional Commits](https://www.conventionalcommits.org) prefixes for commit messages, as the history does: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`.
-- Run `pnpm format` and `pnpm build`, and build both examples before you open a pull request.
+- Run `pnpm format` and `pnpm build`, and build the example before you open a pull request.
 - If you change utilities or options, update the [package README](packages/tailwindcss-material-symbols/README.md). The package README is the documentation published on npm.

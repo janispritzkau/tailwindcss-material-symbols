@@ -1,0 +1,5 @@
+/* Inlined into a shadow root, so it only needs the classes used there. */
+@import "tailwindcss" source(none);
+@import "@janispritzkau/tailwindcss-material-symbols";
+
+@source "./shadow.ts";
