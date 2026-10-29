@@ -21,6 +21,14 @@ updates:
         dependency-type: development
         update-types: [minor, patch]
     # material-symbols stays ungrouped: one pull request per bump, with its own names diff.
+    ignore:
+      # The dev copy builds and tests the deprecated v3 plugin (src/v3, the v3 fixtures). Tailwind
+      # v4 comes from @tailwindcss/node and the example.
+      - dependency-name: tailwindcss
+        update-types: ["version-update:semver-major"]
+      # Matches the oldest Node version CI tests, so the types don't allow newer APIs.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
