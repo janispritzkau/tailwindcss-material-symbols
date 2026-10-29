@@ -3,11 +3,13 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { test } from "node:test";
 import * as fontkit from "fontkit";
-import codepoints from "../src/generated/codepoints";
 import subsetMaterialSymbols from "../src/subset";
 
-function codepoint(name: keyof typeof codepoints): number {
-  return codepoints[name].codePointAt(0)!;
+// From `src/generated/codepoints.css`.
+const CODEPOINTS = { home: 0xe9b2, "2d_2": 0xfff0e, search: 0xef7a };
+
+function codepoint(name: keyof typeof CODEPOINTS): number {
+  return CODEPOINTS[name];
 }
 
 test("subsets the fonts to the detected symbols and axis ranges", async () => {

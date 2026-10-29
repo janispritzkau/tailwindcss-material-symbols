@@ -9,7 +9,7 @@ import { transform } from "lightningcss";
 import postcss from "postcss";
 import tailwindcssV3 from "tailwindcss";
 import type { Config } from "tailwindcss";
-import materialSymbols from "../src/index";
+import materialSymbols from "../src/v3/index";
 
 interface Fixture {
   name: string;
