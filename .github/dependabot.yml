@@ -1,0 +1,27 @@
+version: 2
+updates:
+  # The pnpm workspace root. Dependabot reads pnpm-workspace.yaml, so this also covers packages/*
+  # and examples/*.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Leaves ranges alone while they allow the new version, so peerDependencies and the published
+    # dependency ranges don't change on every release. Exact pins (material-symbols) stay exact.
+    versioning-strategy: increase-if-necessary
+    labels: [dependencies]
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+    # material-symbols stays ungrouped: one pull request per bump, with its own names diff.
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      # Majors get their own pull requests, so one of them doesn't hold back the others.
+      actions:
+        patterns: ["*"]
+        update-types: [minor, patch]
