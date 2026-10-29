@@ -10,7 +10,10 @@ name: Release
 #   last release. It leaves an open release pull request alone (run the workflow to refresh it), and
 #   it doesn't touch a package that is at a prerelease version.
 #
-# Needs "Allow GitHub Actions to create and approve pull requests" in Settings → Actions → General.
+# Pushes and opens the pull request as a GitHub App, because pushes and pull requests made with
+# GITHUB_TOKEN don't start other workflows, and the pull request needs a `ci` check from CI. Needs
+# the App installed on this repository with Contents, Pull requests and Issues (read and write), its
+# client ID in the `BOT_CLIENT_ID` variable and a private key in the `BOT_PRIVATE_KEY` secret.
 on:
   workflow_dispatch:
     inputs:
@@ -56,22 +59,29 @@ jobs:
     needs: check
     if: github.event_name != 'schedule' || needs.check.outputs.open != 'true'
     runs-on: ubuntu-latest
+    # Everything that writes uses the App's token.
     permissions:
-      contents: write
-      pull-requests: write
-      # Creating the `icons-removed` label.
-      issues: write
-      # Starting CI on the release branch.
-      actions: write
+      contents: read
     env:
-      GH_TOKEN: ${{ github.token }}
       PACKAGE_JSON: packages/tailwindcss-material-symbols/package.json
       BRANCH: release/next
     steps:
+      # Scoped to this repository and to what this job needs, whatever else the App may do.
+      - id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.BOT_CLIENT_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          # Creating the `icons-removed` label.
+          permission-issues: write
       - uses: actions/checkout@v7
         with:
           # git-cliff and the commit list need the history and the tags.
           fetch-depth: 0
+          # `git push` authenticates as the App.
+          token: ${{ steps.app-token.outputs.token }}
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -123,12 +133,16 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TAG: ${{ steps.version.outputs.tag }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BOT: ${{ steps.app-token.outputs.app-slug }}[bot]
         run: |
           (cd packages/tailwindcss-material-symbols && npm pkg set version="$VERSION")
           pnpm changelog --tag "$TAG"
           pnpm exec prettier --check "$PACKAGE_JSON" CHANGELOG.md
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Commits as the App's bot user, so GitHub links the commit to it.
+          BOT_ID=$(gh api "users/$BOT" --jq .id)
+          git config user.name "$BOT"
+          git config user.email "$BOT_ID+$BOT@users.noreply.github.com"
           git switch -C "$BRANCH"
           git add "$PACKAGE_JSON" CHANGELOG.md
           git commit -m "chore: bump version to $VERSION"
@@ -141,6 +155,7 @@ jobs:
           REMOVED: ${{ steps.version.outputs.removed }}
           OWNER: ${{ github.repository_owner }}
           PR_BODY_FILE: ${{ runner.temp }}/release-pr.md
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           TITLE="chore: bump version to $VERSION"
           NUMBER=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number // empty')
@@ -158,6 +173,3 @@ jobs:
           else
             gh pr edit "$NUMBER" --remove-label icons-removed || true
           fi
-          # A pull request opened with GITHUB_TOKEN doesn't start the `pull_request` workflows, so
-          # run CI on the branch. Its `ci` check is the one that the pull request requires.
-          gh workflow run ci.yml --ref "$BRANCH"
