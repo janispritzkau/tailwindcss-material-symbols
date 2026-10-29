@@ -39,6 +39,8 @@ split_commits = false
 commit_parsers = [
   { message = "^chore: bump version", skip = true },
   { message = "^release", skip = true },
+  # Dependabot's development dependency and GitHub Actions updates don't change the package.
+  { message = "^(build\\(deps-dev\\)|ci\\(deps\\))", skip = true },
   { message = "^feat", group = "<!-- 0 -->Features" },
   { message = "^fix", group = "<!-- 1 -->Bug fixes" },
   { message = "^perf", group = "<!-- 2 -->Performance" },

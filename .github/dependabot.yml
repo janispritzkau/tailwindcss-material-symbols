@@ -10,6 +10,12 @@ updates:
     # dependency ranges don't change on every release. Exact pins (material-symbols) stay exact.
     versioning-strategy: increase-if-necessary
     labels: [dependencies]
+    # Conventional Commits, so the changelog and the release workflow can read the merged updates:
+    # `build(deps):` for runtime and `build(deps-dev):` for development dependencies.
+    commit-message:
+      prefix: build
+      prefix-development: build
+      include: scope
     groups:
       dev-dependencies:
         dependency-type: development
@@ -20,6 +26,9 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    commit-message:
+      prefix: ci
+      include: scope
     groups:
       # Majors get their own pull requests, so one of them doesn't hold back the others.
       actions:

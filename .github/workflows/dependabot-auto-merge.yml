@@ -99,10 +99,24 @@ jobs:
         if: needs.decide.outputs.action != 'merge'
         # Auto-merge may be on from an earlier push to the pull request.
         run: gh pr merge "$PR" --disable-auto || true
-      - name: Label and comment the removed icon names
+      - name: Label the removed icon names
         if: needs.decide.outputs.action == 'icons-removed' && !contains(github.event.pull_request.labels.*.name, 'icons-removed')
         run: |
           gh label create icons-removed --force --color d93f0b \
             --description "A material-symbols update that removes icon names (breaking change)"
           gh api "repos/$GH_REPO/issues/$PR/labels" -f "labels[]=icons-removed" --silent
-          gh pr comment "$PR" --body "$MESSAGE"
+      - name: Ask the owner for a review
+        if: needs.decide.outputs.action != 'merge'
+        env:
+          OWNER: ${{ github.repository_owner }}
+        # The mention is the notification. One comment per pull request: Dependabot's rebases run
+        # this workflow again.
+        run: |
+          MARKER="<!-- dependabot-auto-merge -->"
+          if gh pr view "$PR" --json comments --jq '.comments[].body' | grep -qF "$MARKER"; then
+            exit 0
+          fi
+          gh pr comment "$PR" --body "$MARKER
+          @$OWNER this update needs a decision.
+
+          $MESSAGE"
