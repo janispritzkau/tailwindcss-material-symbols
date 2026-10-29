@@ -61,9 +61,10 @@ export function detect(css: string, options?: SubsetOptions): Detection {
       (m) => fontNames[m.groups!.value4! ?? m.groups!.value3!],
     ).filter((x) => x != null),
   );
-  const usedOpsz = new Set(
-    Array.from(css.matchAll(OPSZ_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
-  );
+  const usedOpsz = new Set([
+    ...Array.from(css.matchAll(OPSZ_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
+    ...Array.from(css.matchAll(OPSZ_CALC_REGEX), (m) => Number(m.groups!.value!) * 4),
+  ]);
   const usedWght = new Set(
     Array.from(css.matchAll(WGHT_REGEX), (m) => Number(m.groups!.value4! ?? m.groups!.value3!)),
   );
@@ -146,10 +147,14 @@ const OPSZ_REGEX_V4 = `(?<!\\w|-)--icon-opsz-[\\w-]+:\\s*(?<value4>-?\\d+)`;
 const WGHT_REGEX_V4 = `(?<!\\w|-)--icon-wght-[\\w-]+:\\s*(?<value4>-?\\d+)`;
 const GRAD_REGEX_V4 = `(?<!\\w|-)--icon-grad-[\\w-]+:\\s*(?<value4>-?\\d+)`;
 const FILL_REGEX_V4 = `(?<!\\w|-)--icon-fill-[\\w-]+:\\s*(?<value4>-?\\d+)`;
+// v4: numeric sizes (`icon-8`) set `--icon-opsz: calc(8 * 4)`, which isn't folded, not even when
+// minified.
+const OPSZ_CALC_REGEX_V4 = `(?<!\\w|-)--icon-opsz:\\s*calc\\(\\s*(?<value>\\d+)\\s*\\*\\s*4\\s*\\)`;
 const SYMBOLS_REGEX_V4 = `(?<!\\w|-)--icon-symbol-(?<key4>\\w+):\\s*['"]?(?<value4>[^'";}]+)`;
 
 const FONT_REGEX = new RegExp(`${FONT_REGEX_V3}|${FONT_REGEX_V4}`, "g");
 const OPSZ_REGEX = new RegExp(`${OPSZ_REGEX_V3}|${OPSZ_REGEX_V4}`, "g");
+const OPSZ_CALC_REGEX = new RegExp(OPSZ_CALC_REGEX_V4, "g");
 const WGHT_REGEX = new RegExp(`${WGHT_REGEX_V3}|${WGHT_REGEX_V4}`, "g");
 const GRAD_REGEX = new RegExp(`${GRAD_REGEX_V3}|${GRAD_REGEX_V4}`, "g");
 const FILL_REGEX = new RegExp(`${FILL_REGEX_V3}|${FILL_REGEX_V4}`, "g");
