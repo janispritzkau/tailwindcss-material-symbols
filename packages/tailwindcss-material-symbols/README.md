@@ -113,7 +113,7 @@ The subsetter is also exported as `@janispritzkau/tailwindcss-material-symbols/s
 
 ```js
 // tailwind.config.js
-import materialSymbols from "@janispritzkau/tailwindcss-material-symbols";
+import materialSymbols from "@janispritzkau/tailwindcss-material-symbols/v3";
 
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx,vue}"],
@@ -121,7 +121,7 @@ export default {
 };
 ```
 
-Your CSS needs `@tailwind base`, and the Vite plugin works the same, without `@tailwindcss/vite`. The utilities are the same as above.
+Existing configs that import the package root keep working. Your CSS needs `@tailwind base`, and the Vite plugin works the same, without `@tailwindcss/vite`. The utilities are the same as above.
 
 ## License
 
