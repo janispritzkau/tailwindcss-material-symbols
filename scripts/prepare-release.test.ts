@@ -47,8 +47,17 @@ test("bumps versions", () => {
   assert.equal(bumpVersion("0.0.10", "patch"), "0.0.11");
   assert.equal(bumpVersion("0.0.10", "minor"), "0.1.0");
   assert.equal(bumpVersion("0.4.2", "major"), "1.0.0");
-  assert.equal(bumpVersion("1.2.3-alpha.1", "patch"), "1.2.4");
+  assert.equal(bumpVersion("1.2.3-alpha.1", "patch"), "1.2.3");
   assert.throws(() => bumpVersion("latest", "patch"));
+});
+
+test("bumping a prerelease releases it, like npm version", () => {
+  assert.equal(bumpVersion("0.1.0-alpha.0", "patch"), "0.1.0");
+  assert.equal(bumpVersion("0.1.0-alpha.0", "minor"), "0.1.0");
+  assert.equal(bumpVersion("0.1.1-alpha.0", "patch"), "0.1.1");
+  assert.equal(bumpVersion("0.1.1-alpha.0", "minor"), "0.2.0");
+  assert.equal(bumpVersion("1.0.0-rc.1", "major"), "1.0.0");
+  assert.equal(bumpVersion("1.2.0-rc.1", "major"), "2.0.0");
 });
 
 test("auto bump before 1.0: patch, or minor for breaking changes", () => {
@@ -84,6 +93,18 @@ test("pull request body lists the icon names and the commits", () => {
   assert.match(body, /Icon names: 1 added, 1 removed\./);
   assert.match(body, /\*\*Removed:\*\* `old_icon`/);
   assert.match(body, /- feat: x\n- fix: y\n/);
+});
+
+test("pull request body points out a missing names diff", () => {
+  const body = pullRequestBody({
+    version: "0.0.11",
+    how: "patch",
+    lastTag: "v0.0.10",
+    commits: [commit("feat: x")],
+    newDependency: "0.48.2",
+  });
+  assert.match(body, /## material-symbols 0\.48\.2/);
+  assert.match(body, /v0\.0\.10 didn't depend on `material-symbols` yet/);
 });
 
 test("pull request body shortens long lists and skips the names without a diff", () => {

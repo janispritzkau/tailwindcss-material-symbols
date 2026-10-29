@@ -6,7 +6,9 @@ name: Release
 #
 # - Run it from the Actions tab to release now.
 # - The weekly schedule opens the pull request only if a release is worth publishing: a feature, a
-#   fix, a runtime dependency update or a new material-symbols version since the last release.
+#   fix, a runtime dependency update, a breaking change or a new material-symbols version since the
+#   last release. It leaves an open release pull request alone (run the workflow to refresh it), and
+#   it doesn't touch a package that is at a prerelease version.
 #
 # Needs "Allow GitHub Actions to create and approve pull requests" in Settings → Actions → General.
 on:
@@ -31,8 +33,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release-pr:
+  # A scheduled run must not overwrite a release pull request that was prepared by hand, such as a
+  # prerelease.
+  check:
     if: github.repository == 'janispritzkau/tailwindcss-material-symbols' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      open: ${{ steps.open.outputs.open }}
+    steps:
+      - id: open
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          NUMBER=$(gh pr list --head release/next --base main --state open --json number --jq '.[0].number // empty')
+          echo "open release pull request: ${NUMBER:-none}"
+          [[ -n "$NUMBER" ]] && echo "open=true" >> "$GITHUB_OUTPUT" || echo "open=false" >> "$GITHUB_OUTPUT"
+
+  release-pr:
+    needs: check
+    if: github.event_name != 'schedule' || needs.check.outputs.open != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -69,6 +91,8 @@ jobs:
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
           [[ -n "$BASE" && -n "$HEAD" && "$BASE" != "$HEAD" ]] && CHANGED=true || CHANGED=false
           echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+          # The last release didn't depend on material-symbols yet, so there is nothing to diff.
+          [[ -z "$BASE" && -n "$HEAD" ]] && echo "new=$HEAD" >> "$GITHUB_OUTPUT" || true
       - name: Diff the icon names
         if: steps.last.outputs.changed == 'true'
         env:
@@ -89,6 +113,7 @@ jobs:
           VERSION: ${{ inputs.version }}
           ONLY_IF_NEEDED: ${{ github.event_name == 'schedule' }}
           NAMES_DIFF: ${{ runner.temp }}/names-diff.json
+          MATERIAL_SYMBOLS_NEW: ${{ steps.last.outputs.new }}
           PR_BODY_FILE: ${{ runner.temp }}/release-pr.md
         # Node 24 runs the TypeScript file directly. The script only imports Node built-ins.
         run: node scripts/prepare-release.ts

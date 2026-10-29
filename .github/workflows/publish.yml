@@ -14,10 +14,6 @@ on:
 
 permissions: {}
 
-concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: false
-
 jobs:
   detect:
     runs-on: ubuntu-latest

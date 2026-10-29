@@ -6,14 +6,17 @@
 //   count as a breaking change. Before 1.0, a breaking change bumps the minor version and
 //   everything else the patch version, as the releases so far did.
 // - A release is worth publishing if a commit changes the package for its users (`feat`, `fix`,
-//   `perf`, `revert`, or a runtime dependency update) or `material-symbols` changed. Chores,
-//   docs, CI and development dependency updates don't need one.
+//   `perf`, `revert`, a runtime dependency update or a breaking change) or `material-symbols`
+//   changed. Chores, docs, CI and development dependency updates don't need one. A package that
+//   is at a prerelease version is promoted by hand, not by the weekly run.
+// - The version must not have a tag yet: publish.yml would skip it.
 //
 // Usage: node scripts/prepare-release.ts
 // Reads `LAST_TAG` (the last stable release tag), `BUMP` (`auto`, `patch`, `minor` or `major`,
 // default `auto`), `VERSION` (an exact version, overrides `BUMP`), `ONLY_IF_NEEDED` (`true` to do
 // nothing unless a release is worth publishing), `NAMES_DIFF` (path to the `names-diff.json`
 // written by `diff-codepoints.ts`, if `material-symbols` changed since the last release),
+// `MATERIAL_SYMBOLS_NEW` (the `material-symbols` version, if the last release didn't depend on it),
 // `PACKAGE_JSON` and `PR_BODY_FILE`. Prints the result as JSON and writes `release`, `version`,
 // `tag` and `removed` to `GITHUB_OUTPUT`.
 import { execFileSync } from "node:child_process";
@@ -52,11 +55,22 @@ function parse(version: string): [number, number, number] {
   return [Number(match[1]), Number(match[2]), Number(match[3])];
 }
 
+export function isPrerelease(version: string): boolean {
+  parse(version);
+  return version.includes("-");
+}
+
+/** Like `npm version`: a prerelease of the next version is released as that version. */
 export function bumpVersion(version: string, bump: Bump): string {
   const [major, minor, patch] = parse(version);
-  if (bump === "major") return `${major + 1}.0.0`;
-  if (bump === "minor") return `${major}.${minor + 1}.0`;
-  return `${major}.${minor}.${patch + 1}`;
+  const prerelease = isPrerelease(version);
+  if (bump === "major") {
+    return prerelease && minor === 0 && patch === 0 ? `${major}.0.0` : `${major + 1}.0.0`;
+  }
+  if (bump === "minor") {
+    return prerelease && patch === 0 ? `${major}.${minor}.0` : `${major}.${minor + 1}.0`;
+  }
+  return prerelease ? `${major}.${minor}.${patch}` : `${major}.${minor}.${patch + 1}`;
 }
 
 export function autoBump(
@@ -95,9 +109,18 @@ export interface BodyInput {
   lastTag: string;
   commits: Commit[];
   namesDiff?: NamesDiff;
+  /** The `material-symbols` version, if the last release didn't depend on it yet. */
+  newDependency?: string;
 }
 
-export function pullRequestBody({ version, how, lastTag, commits, namesDiff }: BodyInput): string {
+export function pullRequestBody({
+  version,
+  how,
+  lastTag,
+  commits,
+  namesDiff,
+  newDependency,
+}: BodyInput): string {
   const lines = [
     `Release **${version}**: ${how}.`,
     "",
@@ -119,6 +142,14 @@ export function pullRequestBody({ version, how, lastTag, commits, namesDiff }: B
         "Removed names break the `icon-symbol-*` utilities for anyone using them, so this release is a breaking change.",
       );
     }
+  }
+  if (newDependency) {
+    lines.push(
+      "",
+      `## material-symbols ${newDependency}`,
+      "",
+      `${lastTag} didn't depend on \`material-symbols\` yet, so there is no diff of the icon names. Compare them with the previous release by hand: removed names break the \`icon-symbol-*\` utilities.`,
+    );
   }
   const subjects = commits.map((commit) => commit.subject);
   lines.push("", `## Commits since ${lastTag}`, "");
@@ -142,6 +173,15 @@ function readCommits(lastTag: string): Commit[] {
     .filter((commit) => !commit.subject.startsWith("chore: bump version"));
 }
 
+function tagExists(tag: string): boolean {
+  try {
+    execFileSync("git", ["rev-parse", "-q", "--verify", `refs/tags/${tag}`], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function writeOutput(name: string, value: string): void {
   if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`);
 }
@@ -157,10 +197,16 @@ if (import.meta.main) {
     namesDiffPath && existsSync(namesDiffPath)
       ? JSON.parse(readFileSync(namesDiffPath, "utf8"))
       : undefined;
+  const newDependency = process.env.MATERIAL_SYMBOLS_NEW || undefined;
   const commits = readCommits(lastTag);
   const onlyIfNeeded = process.env.ONLY_IF_NEEDED === "true";
 
-  const needed = commits.some(isUserFacing) || namesDiff !== undefined;
+  // A prerelease is promoted by hand, so the weekly run leaves it alone.
+  const needed =
+    !isPrerelease(current) &&
+    (commits.some((commit) => isUserFacing(commit) || isBreaking(commit)) ||
+      namesDiff !== undefined ||
+      newDependency !== undefined);
   if (commits.length === 0 || (onlyIfNeeded && !needed)) {
     if (!onlyIfNeeded) throw new Error(`Nothing to release: no commits since ${lastTag}`);
     console.log(JSON.stringify({ release: false, commits: commits.length }));
@@ -190,7 +236,10 @@ if (import.meta.main) {
     throw new Error(`Unknown bump: ${input}`);
   }
 
-  const body = pullRequestBody({ version, how, lastTag, commits, namesDiff });
+  if (tagExists(`v${version}`)) {
+    throw new Error(`The tag v${version} exists already, so merging would not publish it`);
+  }
+  const body = pullRequestBody({ version, how, lastTag, commits, namesDiff, newDependency });
   if (process.env.PR_BODY_FILE) writeFileSync(process.env.PR_BODY_FILE, body);
   console.log(JSON.stringify({ release: true, version, how, removed, commits: commits.length }));
   writeOutput("release", "true");
