@@ -86,7 +86,7 @@
     "fontkit": "^2.0.4",
     "lightningcss": "^1.33.0",
     "postcss": "^8.5.32",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.3.3",
     "vite": "^7.1.7"
   }
 }
