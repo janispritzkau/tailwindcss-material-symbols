@@ -3,6 +3,42 @@
 All notable changes to `@janispritzkau/tailwindcss-material-symbols` are documented in this file.
 The changelog is generated from the commit history with [git-cliff](https://git-cliff.org).
 
+## [1.0.0-rc.0](https://github.com/janispritzkau/tailwindcss-material-symbols/compare/v0.0.10...v1.0.0-rc.0) - 2026-10-29
+
+### Features
+
+- Load fonts from material-symbols, generate the codepoint map at build time (#35) ([e00f098](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/e00f0986722c14b71bb4193207ab8d7823d13404))
+- **BREAKING:** Vite plugin without options or index.html, in dev and build (#39) ([09662ed](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/09662edf96b70e633567657c1ee22676c861638c))
+
+### Bug fixes
+
+- **changelog:** Flag breaking changes in the generated changelog (#47) ([f642cb3](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/f642cb3a6e2f20018b3bbf9c25a17ad18d0d173d))
+- Keep .js and .d.ts output names with tsdown 0.23 (#54) ([dfffe6a](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/dfffe6acee8598cc0a9c966e6f149d7f6fc7ae1a))
+- Resolve the ./v3 export from tailwind.config.js under Tailwind v3 (#55) ([6760e33](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/6760e33c49ed91ca86eadc12a09556f4a7c81551))
+
+### Refactoring
+
+- Isolate and deprecate Tailwind v3 support (#34) ([5c1ab8f](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/5c1ab8f8f043a18e08c03e6a1c49fc98c993ec22))
+
+### Documentation
+
+- Root README as a pointer, shorter package README and CONTRIBUTING (#42) ([afe06ec](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/afe06ec9b7ee6d3fabd114cf82773651902cc8ef))
+
+### Miscellaneous
+
+- Small cleanups (unused deps, dead config, format script, CSS concatenation) (#29) ([2101b1b](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/2101b1bf0e36dc4bac39847d0180a07c85ac91ef))
+- Replace the Vue examples with one plain Vite example (#30) ([3e6b9a7](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/3e6b9a7b016d5a29300f968d55abcc462c945849))
+- Run checks on pull requests and harden the publish workflow (#33) ([1a92d86](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/1a92d8625a633447de765f504f28dcd37193386c))
+- Add Dependabot with auto-merge after the required checks (#36) ([61d9418](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/61d941851c3bcbf822c9f7309fc2e133aebd297f))
+- Open a release pull request and publish when it is merged (#37) ([8e39e18](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/8e39e181873aa792d60c71de26d751120d2ef5f9))
+- **deps:** Bump subset-font from 2.4.0 to 2.9.0 (#49) ([43474bd](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/43474bd4f1501602c8f808068f86c985d0a31cfd))
+- **dependabot:** Ignore major bumps of tailwindcss and @types/node (#56) ([37a39e7](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/37a39e7e92a8cd302ad0513b68ca488e839b1269))
+- **release:** Push and open the release pull request as a GitHub App (#60) ([dea0eae](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/dea0eae8f9ef94ada3bb8fb98a9c220fc1fa00c0))
+
+### Test
+
+- Fixture tests for subset detection (Tailwind v3 + v4) (#32) ([d118e4f](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/d118e4f015af48705e1805825ac69a2339fb512d))
+
 ## [0.0.10](https://github.com/janispritzkau/tailwindcss-material-symbols/compare/v0.0.9...v0.0.10) - 2026-10-28
 
 ### Bug fixes
