@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 import subsetFont from "subset-font";
 import type { Matches } from "./detect";
 import { detectV3 } from "./detect-v3";
@@ -32,6 +32,8 @@ const DEFAULT_OPTIONS = {
 } satisfies SubsetOptions;
 
 type Font = "outlined" | "rounded" | "sharp";
+
+const require = createRequire(import.meta.url);
 
 interface AxisRange {
   min: number;
@@ -108,7 +110,7 @@ export default async function subsetMaterialSymbols(
 
   for (const font of fonts) {
     const fontInput = await readFile(
-      fileURLToPath(new URL(`../assets/material-symbols-${font}.woff2`, import.meta.url)),
+      require.resolve(`material-symbols/material-symbols-${font}.woff2`),
     );
 
     const fontOutput = await subsetFont(fontInput, content, {

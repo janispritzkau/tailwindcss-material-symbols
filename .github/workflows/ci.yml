@@ -40,15 +40,83 @@ jobs:
         run: pnpm --filter ./examples/vite add --save-dev "vite@^${{ matrix.vite }}"
       - run: pnpm test:example
 
+  # On pull requests that change the material-symbols version, lists the added and removed icon
+  # names in the job summary. Removed names break `icon-symbol-*` utilities, so they get a warning.
+  names-diff:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare the material-symbols versions
+        id: versions
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PACKAGE_JSON: packages/tailwindcss-material-symbols/package.json
+        run: |
+          git fetch --depth=1 origin "$BASE_SHA"
+          BASE=$(git show "$BASE_SHA:$PACKAGE_JSON" | jq -r '.dependencies["material-symbols"] // empty')
+          HEAD=$(jq -r '.dependencies["material-symbols"] // empty' "$PACKAGE_JSON")
+          echo "material-symbols: base ${BASE:-none}, head ${HEAD:-none}"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          echo "head=$HEAD" >> "$GITHUB_OUTPUT"
+          [[ -n "$BASE" && -n "$HEAD" && "$BASE" != "$HEAD" ]] && CHANGED=true || CHANGED=false
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+          if [[ -z "$BASE" && -n "$HEAD" ]]; then
+            echo "material-symbols $HEAD is new in this pull request, so there is no names diff." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: pnpm/action-setup@v4
+        if: steps.versions.outputs.changed == 'true'
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        if: steps.versions.outputs.changed == 'true'
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - if: steps.versions.outputs.changed == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Diff the icon names
+        if: steps.versions.outputs.changed == 'true'
+        env:
+          BASE: ${{ steps.versions.outputs.base }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/base"
+          npm pack "material-symbols@$BASE" --pack-destination "$RUNNER_TEMP/base" --silent
+          tar -xzf "$RUNNER_TEMP/base/material-symbols-$BASE.tgz" -C "$RUNNER_TEMP/base"
+          pnpm --silent --filter ./packages/tailwindcss-material-symbols \
+            exec tsx scripts/diff-codepoints.ts "$RUNNER_TEMP/base/package" > names-diff.json
+          cat names-diff.json
+
+          ADDED=$(jq '.added | length' names-diff.json)
+          REMOVED=$(jq '.removed | length' names-diff.json)
+          {
+            echo "### material-symbols $(jq -r '"\(.base) → \(.head)"' names-diff.json)"
+            echo
+            echo "$ADDED added, $REMOVED removed."
+            echo
+            if (( ADDED )); then echo "**Added:** $(jq -r '.added | map("`\(.)`") | join(", ")' names-diff.json)"; echo; fi
+            if (( REMOVED )); then echo "**Removed:** $(jq -r '.removed | map("`\(.)`") | join(", ")' names-diff.json)"; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          if (( REMOVED )); then
+            echo "::warning title=Icon names removed::material-symbols $BASE → $(jq -r .head names-diff.json) removes $REMOVED names: $(jq -r '.removed | join(", ")' names-diff.json). This is a breaking change for users of these icon-symbol-* utilities."
+          fi
+      - uses: actions/upload-artifact@v4
+        if: steps.versions.outputs.changed == 'true'
+        with:
+          name: names-diff
+          path: names-diff.json
+
   # Single, stable check name for branch protection and auto-merge.
   ci:
     if: always()
-    needs: checks
+    needs: [checks, names-diff]
     runs-on: ubuntu-latest
     steps:
       - name: Check results
         env:
-          RESULT: ${{ needs.checks.result }}
+          FAILED: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+          RESULTS: ${{ toJSON(needs.*.result) }}
         run: |
-          echo "checks: $RESULT"
-          [[ "$RESULT" == "success" ]]
+          echo "results: $RESULTS"
+          # `names-diff` is skipped on pushes to main, which counts as a pass.
+          [[ "$FAILED" == "false" ]]
