@@ -1,3 +1,4 @@
 pnpm-lock.yaml
 src/generated
 dist
+packages/tailwindcss-material-symbols/test/fixtures

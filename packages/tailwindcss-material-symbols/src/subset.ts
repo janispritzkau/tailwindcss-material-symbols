@@ -29,15 +29,31 @@ const DEFAULT_OPTIONS = {
   },
 } satisfies SubsetOptions;
 
-export default async function subsetMaterialSymbols(
-  css: string,
-  options?: SubsetOptions,
-): Promise<Partial<Record<"outlined" | "rounded" | "sharp", Buffer>>> {
+type Font = "outlined" | "rounded" | "sharp";
+
+interface AxisRange {
+  min: number;
+  max: number;
+}
+
+/** @internal Result of {@link detect}. Exported for tests. */
+export interface Detection {
+  fonts: Font[];
+  opsz: AxisRange;
+  wght: AxisRange;
+  grad: AxisRange;
+  fill: AxisRange;
+  /** Names of the used symbols that exist in the font. */
+  symbols: string[];
+}
+
+/** @internal Detects the used font styles, axis ranges and symbols in Tailwind output. */
+export function detect(css: string, options?: SubsetOptions): Detection {
   const fontFamily = { ...DEFAULT_OPTIONS.fontFamily, ...options?.fontFamily };
   const defaults = { ...DEFAULT_OPTIONS.defaults, ...options?.defaults };
   const fontNames = Object.fromEntries(
     Object.entries(fontFamily).map(([k, v]) => [v, k]),
-  ) as Record<string, "outlined" | "rounded" | "sharp">;
+  ) as Record<string, Font>;
 
   const usedFont = new Set(
     Array.from(
@@ -64,19 +80,37 @@ export default async function subsetMaterialSymbols(
   usedGrad.add(defaults.grad);
   usedFill.add(defaults.fill);
 
-  const usedSymbols = new Map(
-    Array.from(css.matchAll(SYMBOLS_REGEX), (m) => m.groups!.key4! ?? m.groups!.key3!)
-      .filter((k): k is keyof typeof codepoints => k in codepoints)
-      .map((k) => [k, codepoints[k]]),
+  const usedSymbols = new Set(
+    Array.from(css.matchAll(SYMBOLS_REGEX), (m) => m.groups!.key4! ?? m.groups!.key3!).filter(
+      (k): k is keyof typeof codepoints => k in codepoints,
+    ),
   );
 
-  const content = Array.from(usedSymbols.values()).join("");
+  return {
+    fonts: Array.from(usedFont).filter((font) => font),
+    opsz: range(usedOpsz),
+    wght: range(usedWght),
+    grad: range(usedGrad),
+    fill: range(usedFill),
+    symbols: Array.from(usedSymbols),
+  };
+}
 
-  const output: Partial<Record<"outlined" | "rounded" | "sharp", Buffer>> = {};
+function range(values: Set<number>): AxisRange {
+  return { min: Math.min(...values), max: Math.max(...values) };
+}
 
-  for (const font of usedFont) {
-    if (!font) continue;
+export default async function subsetMaterialSymbols(
+  css: string,
+  options?: SubsetOptions,
+): Promise<Partial<Record<Font, Buffer>>> {
+  const { fonts, opsz, wght, grad, fill, symbols } = detect(css, options);
 
+  const content = symbols.map((k) => codepoints[k as keyof typeof codepoints]).join("");
+
+  const output: Partial<Record<Font, Buffer>> = {};
+
+  for (const font of fonts) {
     const fontInput = await readFile(
       fileURLToPath(new URL(`../assets/material-symbols-${font}.woff2`, import.meta.url)),
     );
@@ -84,10 +118,10 @@ export default async function subsetMaterialSymbols(
     const fontOutput = await subsetFont(fontInput, content, {
       targetFormat: "woff2",
       variationAxes: {
-        wght: { min: Math.min(...usedWght), max: Math.max(...usedWght) },
-        opsz: { min: Math.min(...usedOpsz), max: Math.max(...usedOpsz) },
-        FILL: usedFill.size > 1 ? { min: Math.min(...usedFill), max: Math.max(...usedFill) } : 0,
-        GRAD: usedGrad.size > 1 ? { min: Math.min(...usedGrad), max: Math.max(...usedGrad) } : 0,
+        wght,
+        opsz,
+        FILL: fill.min != fill.max ? fill : 0,
+        GRAD: grad.min != grad.max ? grad : 0,
       },
     });
 

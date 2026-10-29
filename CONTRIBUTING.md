@@ -42,13 +42,16 @@ Run these from the repository root:
 | `pnpm build`                     | Runs `download:material-symbols`, then `build-only` and `type-check` in parallel.                                        |
 | `pnpm build-only`                | Builds the package with tsdown into `packages/tailwindcss-material-symbols/dist`.                                        |
 | `pnpm type-check`                | Runs `tsc --build` on the package sources, `scripts/` and the config files.                                              |
+| `pnpm test`                      | Downloads the fonts if needed, then runs the package tests.                                                              |
 | `pnpm format`                    | Formats the repository with Prettier. `pnpm format:check` only checks.                                                   |
 | `pnpm download:material-symbols` | Downloads the fonts pinned in `version.json` into `assets/`. Does nothing if the existing files match the pinned hashes. |
 | `pnpm update:material-symbols`   | Updates to the latest upstream fonts and codepoints. See below.                                                          |
 | `pnpm changelog`                 | Regenerates `CHANGELOG.md` from the commit history. Pass `--tag vX.Y.Z` to put unreleased changes under that version.    |
 | `pnpm publish:package`           | Publishes the package to npm. Normally run by CI only.                                                                   |
 
-There is no test suite. To check a change, run `pnpm build` and build the example:
+`pnpm test` checks the subset detection (`src/subset.ts`) against real Tailwind v3 and v4 output in `packages/tailwindcss-material-symbols/test/fixtures/`. After changing `src/index.ts` or `src/index.css`, regenerate the fixtures with `pnpm --filter ./packages/tailwindcss-material-symbols generate:fixtures` and review the diff.
+
+To check a change end to end, run `pnpm build` and build the example:
 
 ```bash
 pnpm --filter ./examples/vite build
