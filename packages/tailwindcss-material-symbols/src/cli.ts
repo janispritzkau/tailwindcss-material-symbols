@@ -1,4 +1,5 @@
 import cac from "cac";
+import { fontFace } from "./font-face";
 import subsetMaterialSymbols from "./subset";
 import { version } from "../package.json" assert { type: "json" };
 import { readFileSync } from "node:fs";
@@ -23,21 +24,15 @@ cli
     for (const file of input) {
       inputCss += readFileSync(file, "utf-8") + "\n";
     }
-    const output = await subsetMaterialSymbols(inputCss);
+    const fonts = await subsetMaterialSymbols(inputCss);
     const outDir = options.outDir ?? "dist";
     await mkdir(outDir, { recursive: true });
     let css = "";
-    for (const [variant, data] of Object.entries(output)) {
-      const path = `${outDir}/material-symbols-${variant}.woff2`;
-      await writeFile(path, data!);
+    for (const font of fonts) {
+      const path = `${outDir}/${font.fileName}`;
+      await writeFile(path, font.source);
       console.log(`Wrote ${path}`);
-      css += `@font-face {
-  font-family: "Material Symbols ${variant.replace(/^./, (c) => c.toUpperCase())}";
-  font-style: normal;
-  font-weight: 100 700;
-  font-display: block;
-  src: url("material-symbols-${variant}.woff2") format("woff2");
-}\n\n`;
+      css += fontFace(font.fontFamily, font.fileName) + "\n";
     }
     const cssPath = `${outDir}/material-symbols.css`;
     await writeFile(cssPath, css.trimEnd() + "\n");
