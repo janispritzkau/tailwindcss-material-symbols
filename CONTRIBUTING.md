@@ -31,6 +31,7 @@ pnpm build
 - `examples/vite/`: plain Vite + Tailwind v4 example that uses the workspace package
 - `scripts/check-example.ts`: checks the example build, used by `pnpm test:example`
 - `scripts/dependabot-auto-merge.ts`: decides which Dependabot pull requests are merged automatically
+- `scripts/prepare-release.ts`: picks the next version and writes the body of the release pull request
 
 The package is built with [tsdown](https://tsdown.dev). The CSS entry is not built: the `style` export points at `src/index.css`, which imports `src/generated/codepoints.css`.
 
@@ -76,24 +77,28 @@ Dependabot ([`.github/dependabot.yml`](.github/dependabot.yml)) opens the update
 
 ## Releasing
 
-Releases are published from GitHub Actions ([`.github/workflows/publish.yml`](.github/workflows/publish.yml)) when a `v*` tag is pushed:
+Releases are prepared by GitHub Actions and published when you merge a pull request. You don't need an editor or a terminal.
 
-1. Bump `version` in `packages/tailwindcss-material-symbols/package.json`.
-2. Update the changelog for the new version:
+1. [`.github/workflows/release.yml`](.github/workflows/release.yml) opens the pull request `chore: bump version to X.Y.Z` from the branch `release/next` and requests your review. It bumps `version` in `packages/tailwindcss-material-symbols/package.json`, regenerates the changelog and lists the icon names added and removed since the last release. Removed names also add the `icons-removed` label.
+   - A weekly run (Mondays, 06:00 UTC) does this only if a release is worth publishing: a `feat`, `fix`, `perf` or `revert` commit, a breaking change, a runtime dependency update (`build(deps):`) or a new `material-symbols` version since the last release. It leaves an open release pull request alone, and it does nothing while the package is at a prerelease version.
+   - To release now, or to refresh the open pull request, run **Actions → Release → Run workflow**. `bump: auto` reads the commits (`scripts/prepare-release.ts`). Before 1.0 it bumps the patch version, and the minor version for breaking changes, which include removed icon names. Choose `patch`, `minor` or `major` to override it, or enter an exact `version` such as `0.1.0-alpha.0`. The run fails if the tag for the version exists already. From a prerelease, `auto` and `patch` release its stable version.
+   - Run it again before you merge if commits landed since: the changelog in the pull request is generated when the workflow runs, but the release contains everything on `main` at the merge.
+2. Review the pull request and merge it. Squash-merge it and keep its title.
+3. [`.github/workflows/publish.yml`](.github/workflows/publish.yml) sees a push to `main` with a `chore: bump version to ` commit and a version that has no tag yet. It runs `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm test` and `pnpm publish:package` with Node 22. Prereleases (versions with a `-`, such as `0.1.0-alpha.0`) are published with the `next` dist-tag, all other versions with `latest`. It authenticates to npm with GitHub OIDC (`id-token: write`), so it doesn't need an npm token. Then it creates the tag and a GitHub release with the same notes as the changelog.
 
-   ```bash
-   pnpm changelog --tag v0.1.0
-   ```
+The pull request needs these settings:
 
-3. Commit both changes, for example `chore: bump version to 0.1.0`.
-4. Tag the commit and push the commit and the tag:
+- **Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests"**: on.
+- A pull request opened with `GITHUB_TOKEN` doesn't start the `pull_request` workflows, so the release workflow starts CI (`workflow_dispatch`) on `release/next`. If the required `ci` check doesn't pass for the pull request, merge it as an administrator and fix that.
 
-   ```bash
-   git tag v0.1.0
-   git push origin main v0.1.0
-   ```
+To release by hand, do the same steps yourself: bump `version`, run `pnpm changelog --tag vX.Y.Z`, commit both as `chore: bump version to X.Y.Z`, then tag and push:
 
-The workflow fails if the tag isn't `v` followed by the `version` in `packages/tailwindcss-material-symbols/package.json`. It runs `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm test`, and `pnpm publish:package` with Node 22 and the pinned pnpm. Prereleases (versions with a `-`, such as `0.1.0-alpha.0`) are published with the `next` dist-tag, all other versions with `latest`. It authenticates to npm with GitHub OIDC (`id-token: write`), so it doesn't need an npm token. After publishing, it creates a GitHub release for the tag with the same notes as the changelog.
+```bash
+git tag vX.Y.Z
+git push origin main vX.Y.Z
+```
+
+Pushing a `v*` tag also publishes. The workflow fails if the tag isn't `v` followed by the `version` in `packages/tailwindcss-material-symbols/package.json`.
 
 ### Changelog
 

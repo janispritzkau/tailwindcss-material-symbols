@@ -1,0 +1,163 @@
+name: Release
+
+# Opens or updates the release pull request `release/next`: bumps the version in package.json,
+# regenerates the changelog and lists the icon names added and removed since the last release.
+# Merging it publishes the release (publish.yml).
+#
+# - Run it from the Actions tab to release now.
+# - The weekly schedule opens the pull request only if a release is worth publishing: a feature, a
+#   fix, a runtime dependency update, a breaking change or a new material-symbols version since the
+#   last release. It leaves an open release pull request alone (run the workflow to refresh it), and
+#   it doesn't touch a package that is at a prerelease version.
+#
+# Needs "Allow GitHub Actions to create and approve pull requests" in Settings → Actions → General.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump. `auto` reads the commits and the removed icon names.
+        type: choice
+        options: [auto, patch, minor, major]
+        default: auto
+      version:
+        description: Exact version, such as 0.1.0-alpha.0. Overrides the bump.
+        type: string
+        required: false
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  # A scheduled run must not overwrite a release pull request that was prepared by hand, such as a
+  # prerelease.
+  check:
+    if: github.repository == 'janispritzkau/tailwindcss-material-symbols' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      open: ${{ steps.open.outputs.open }}
+    steps:
+      - id: open
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          NUMBER=$(gh pr list --head release/next --base main --state open --json number --jq '.[0].number // empty')
+          echo "open release pull request: ${NUMBER:-none}"
+          [[ -n "$NUMBER" ]] && echo "open=true" >> "$GITHUB_OUTPUT" || echo "open=false" >> "$GITHUB_OUTPUT"
+
+  release-pr:
+    needs: check
+    if: github.event_name != 'schedule' || needs.check.outputs.open != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      # Creating the `icons-removed` label.
+      issues: write
+      # Starting CI on the release branch.
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PACKAGE_JSON: packages/tailwindcss-material-symbols/package.json
+      BRANCH: release/next
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # git-cliff and the commit list need the history and the tags.
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: "pnpm"
+      # No install scripts: the scripts need git-cliff, tsx and the fonts only.
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Find the last release
+        id: last
+        run: |
+          TAG=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' --exclude '*-*')
+          BASE=$(git show "$TAG:$PACKAGE_JSON" | jq -r '.dependencies["material-symbols"] // empty')
+          HEAD=$(jq -r '.dependencies["material-symbols"] // empty' "$PACKAGE_JSON")
+          echo "last release $TAG, material-symbols: base ${BASE:-none}, head ${HEAD:-none}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          [[ -n "$BASE" && -n "$HEAD" && "$BASE" != "$HEAD" ]] && CHANGED=true || CHANGED=false
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+          # The last release didn't depend on material-symbols yet, so there is nothing to diff.
+          [[ -z "$BASE" && -n "$HEAD" ]] && echo "new=$HEAD" >> "$GITHUB_OUTPUT" || true
+      - name: Diff the icon names
+        if: steps.last.outputs.changed == 'true'
+        env:
+          BASE: ${{ steps.last.outputs.base }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/base"
+          npm pack "material-symbols@$BASE" --pack-destination "$RUNNER_TEMP/base" --silent
+          tar -xzf "$RUNNER_TEMP/base/material-symbols-$BASE.tgz" -C "$RUNNER_TEMP/base"
+          pnpm --silent --filter ./packages/tailwindcss-material-symbols \
+            exec tsx scripts/diff-codepoints.ts "$RUNNER_TEMP/base/package" > "$RUNNER_TEMP/names-diff.json"
+          cat "$RUNNER_TEMP/names-diff.json"
+
+      - name: Choose the version
+        id: version
+        env:
+          LAST_TAG: ${{ steps.last.outputs.tag }}
+          BUMP: ${{ inputs.bump }}
+          VERSION: ${{ inputs.version }}
+          ONLY_IF_NEEDED: ${{ github.event_name == 'schedule' }}
+          NAMES_DIFF: ${{ runner.temp }}/names-diff.json
+          MATERIAL_SYMBOLS_NEW: ${{ steps.last.outputs.new }}
+          PR_BODY_FILE: ${{ runner.temp }}/release-pr.md
+        # Node 24 runs the TypeScript file directly. The script only imports Node built-ins.
+        run: node scripts/prepare-release.ts
+
+      - name: Prepare the release commit
+        if: steps.version.outputs.release == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          (cd packages/tailwindcss-material-symbols && npm pkg set version="$VERSION")
+          pnpm changelog --tag "$TAG"
+          pnpm exec prettier --check "$PACKAGE_JSON" CHANGELOG.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$BRANCH"
+          git add "$PACKAGE_JSON" CHANGELOG.md
+          git commit -m "chore: bump version to $VERSION"
+          git push --force origin "$BRANCH"
+
+      - name: Open or update the pull request
+        if: steps.version.outputs.release == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          REMOVED: ${{ steps.version.outputs.removed }}
+          OWNER: ${{ github.repository_owner }}
+          PR_BODY_FILE: ${{ runner.temp }}/release-pr.md
+        run: |
+          TITLE="chore: bump version to $VERSION"
+          NUMBER=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number // empty')
+          if [[ -n "$NUMBER" ]]; then
+            gh pr edit "$NUMBER" --title "$TITLE" --body-file "$PR_BODY_FILE"
+          else
+            # The review request is the notification.
+            gh pr create --head "$BRANCH" --base main --title "$TITLE" --body-file "$PR_BODY_FILE" --reviewer "$OWNER"
+            NUMBER=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number')
+          fi
+          if (( REMOVED > 0 )); then
+            gh label create icons-removed --force --color d93f0b \
+              --description "A material-symbols update that removes icon names (breaking change)"
+            gh pr edit "$NUMBER" --add-label icons-removed
+          else
+            gh pr edit "$NUMBER" --remove-label icons-removed || true
+          fi
+          # A pull request opened with GITHUB_TOKEN doesn't start the `pull_request` workflows, so
+          # run CI on the branch. Its `ci` check is the one that the pull request requires.
+          gh workflow run ci.yml --ref "$BRANCH"
