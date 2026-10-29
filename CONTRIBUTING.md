@@ -31,7 +31,7 @@ pnpm build
 - `examples/tailwindcss-v4/`, `examples/tailwindcss-v3/`: Vue + Vite example apps that use the workspace package
 - `scripts/download.ts`, `scripts/update.ts`: font download and update scripts
 
-The package is built with [tsdown](https://tsdown.dev). After the build, `tsdown.config.ts` writes `dist/index.css` by inlining `src/generated/codepoints.css` into `src/index.css`.
+The package is built with [tsdown](https://tsdown.dev). The CSS entry is not built: the `style` export points at `src/index.css`, which imports `src/generated/codepoints.css`.
 
 ## Scripts
 
@@ -41,8 +41,8 @@ Run these from the repository root:
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `pnpm build`                     | Runs `download:material-symbols`, then `build-only` and `type-check` in parallel.                                        |
 | `pnpm build-only`                | Builds the package with tsdown into `packages/tailwindcss-material-symbols/dist`.                                        |
-| `pnpm type-check`                | Runs `tsc --build` on the package sources (`packages/tailwindcss-material-symbols/src`).                                 |
-| `pnpm format`                    | Runs Prettier on all `src` directories.                                                                                  |
+| `pnpm type-check`                | Runs `tsc --build` on the package sources, `scripts/` and the config files.                                              |
+| `pnpm format`                    | Formats the repository with Prettier. `pnpm format:check` only checks.                                                   |
 | `pnpm download:material-symbols` | Downloads the fonts pinned in `version.json` into `assets/`. Does nothing if the existing files match the pinned hashes. |
 | `pnpm update:material-symbols`   | Updates to the latest upstream fonts and codepoints. See below.                                                          |
 | `pnpm changelog`                 | Regenerates `CHANGELOG.md` from the commit history. Pass `--tag vX.Y.Z` to put unreleased changes under that version.    |

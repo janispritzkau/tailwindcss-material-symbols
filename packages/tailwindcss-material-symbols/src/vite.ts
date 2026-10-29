@@ -69,11 +69,6 @@ export default function materialSymbols(options: MaterialSymbolsPluginOptions): 
           return css;
         }
       },
-      config() {
-        return {
-          css: {},
-        };
-      },
       transformIndexHtml: {
         order: "pre",
         handler(html) {
