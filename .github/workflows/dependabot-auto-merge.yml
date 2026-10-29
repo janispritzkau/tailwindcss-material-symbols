@@ -49,7 +49,7 @@ jobs:
           echo "material-symbols: base ${BASE:-none}, head ${HEAD:-none}"
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
           echo "head=$HEAD" >> "$GITHUB_OUTPUT"
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: steps.versions.outputs.base && steps.versions.outputs.head
         with:
           version: 10
