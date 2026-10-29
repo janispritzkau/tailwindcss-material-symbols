@@ -16,7 +16,7 @@
     "publish:package": "pnpm --filter ./packages/tailwindcss-material-symbols publish --no-git-checks"
   },
   "devDependencies": {
-    "@types/node": "^22.18.8",
+    "@types/node": "^26.6.5",
     "git-cliff": "^2.14.2",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
