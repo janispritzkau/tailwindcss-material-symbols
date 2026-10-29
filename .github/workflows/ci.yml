@@ -46,7 +46,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Compare the material-symbols versions
         id: versions
         env:
@@ -64,11 +64,10 @@ jobs:
           if [[ -z "$BASE" && -n "$HEAD" ]]; then
             echo "material-symbols $HEAD is new in this pull request, so there is no names diff." >> "$GITHUB_STEP_SUMMARY"
           fi
-      - uses: pnpm/action-setup@v4
+      # Uses the pnpm version from `packageManager` in package.json.
+      - uses: pnpm/action-setup@v6
         if: steps.versions.outputs.changed == 'true'
-        with:
-          version: 10
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: steps.versions.outputs.changed == 'true'
         with:
           node-version: 24
@@ -100,7 +99,7 @@ jobs:
           if (( REMOVED )); then
             echo "::warning title=Icon names removed::material-symbols $BASE → $(jq -r .head names-diff.json) removes $REMOVED names: $(jq -r '.removed | join(", ")' names-diff.json). This is a breaking change for users of these icon-symbol-* utilities."
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.versions.outputs.changed == 'true'
         with:
           name: names-diff
