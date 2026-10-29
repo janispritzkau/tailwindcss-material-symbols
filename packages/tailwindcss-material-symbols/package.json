@@ -82,7 +82,7 @@
     "@tailwindcss/node": "^4.3.3",
     "@types/fontkit": "^2.0.9",
     "@types/subset-font": "^2.3.0",
-    "cac": "^6.7.14",
+    "cac": "^7.1.0",
     "fontkit": "^2.0.4",
     "lightningcss": "^1.33.0",
     "postcss": "^8.5.32",
