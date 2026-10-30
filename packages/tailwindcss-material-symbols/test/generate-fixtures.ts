@@ -62,6 +62,17 @@ const V4: Fixture[] = [
   --icon-wght-heavy: 650;
 }`,
   },
+  {
+    name: "literal-defaults",
+    classes: ["icon", "icon-symbol-home"],
+    css: `@theme {
+  --default-icon-font: "Material Symbols Rounded";
+  --default-icon-opsz: 48;
+  --default-icon-wght: 300;
+  --default-icon-fill: 1;
+  --default-icon-grad: 200;
+}`,
+  },
 ];
 
 const fixturesDir = resolve(import.meta.dirname, "fixtures");

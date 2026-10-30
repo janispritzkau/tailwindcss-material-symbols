@@ -48,6 +48,14 @@ test("subsets the fonts to the detected symbols and axis ranges", async () => {
   }
 });
 
+test("pins an axis to its configured default, not to 0", async () => {
+  const css = `:root { --icon-symbol-home: "\\e9b2"; }`;
+  const [unfilled] = await subsetMaterialSymbols(css);
+  const [filled] = await subsetMaterialSymbols(css, { defaults: { fill: 1 } });
+  assert.deepEqual((fontkit.create(filled!.source) as fontkit.Font).variationAxes, {});
+  assert.ok(!unfilled!.source.equals(filled!.source));
+});
+
 test("detects the symbols in unminified Tailwind v4 output", async () => {
   // The v3 rules must not match `--icon-symbol: var(--icon-symbol-home)` after the space.
   const css = readFileSync(resolve(import.meta.dirname, "fixtures/v4/default.css"), "utf-8");

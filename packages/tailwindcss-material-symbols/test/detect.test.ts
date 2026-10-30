@@ -50,6 +50,15 @@ const EXPECTED = {
       wght: { min: 400, max: 650 },
       symbols: ["2d_2", "home"],
     },
+    // `--default-icon-*` with literal values instead of `var()` references
+    "literal-defaults": {
+      ...DEFAULT,
+      fonts: ["outlined", "rounded"],
+      opsz: { min: 24, max: 48 },
+      wght: { min: 300, max: 400 },
+      grad: { min: 0, max: 200 },
+      fill: { min: 0, max: 1 },
+    },
   },
 } satisfies Record<"v3" | "v4", Record<string, Detection>>;
 

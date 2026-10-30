@@ -140,8 +140,8 @@ export async function subsetDetected(detection: DetectionWithChars): Promise<Sub
         variationAxes: {
           wght,
           opsz,
-          FILL: fill.min != fill.max ? fill : 0,
-          GRAD: grad.min != grad.max ? grad : 0,
+          FILL: fill.min != fill.max ? fill : fill.min,
+          GRAD: grad.min != grad.max ? grad : grad.min,
         },
       }),
     })),

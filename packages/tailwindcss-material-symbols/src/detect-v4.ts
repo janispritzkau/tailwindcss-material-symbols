@@ -1,11 +1,12 @@
 import { matchNumbers, matchSymbols, type Matches } from "./detect";
 
-// Theme variables are only emitted when used, including custom keys (`--icon-opsz-2xl`).
-const FONT_REGEX = /(?<!\w|-)--icon-font-[\w-]+:\s*['"]?(?<value>[^'";}]+)/g;
-const OPSZ_REGEX = /(?<!\w|-)--icon-opsz-[\w-]+:\s*(?<value>-?\d+)/g;
-const WGHT_REGEX = /(?<!\w|-)--icon-wght-[\w-]+:\s*(?<value>-?\d+)/g;
-const GRAD_REGEX = /(?<!\w|-)--icon-grad-[\w-]+:\s*(?<value>-?\d+)/g;
-const FILL_REGEX = /(?<!\w|-)--icon-fill-[\w-]+:\s*(?<value>-?\d+)/g;
+// Theme variables are only emitted when used, including custom keys (`--icon-opsz-2xl`). The
+// `--default-icon-*` variables also match, for literal values (`--default-icon-wght: 300`).
+const FONT_REGEX = /(?<!\w|-)--(?:icon-font-[\w-]+|default-icon-font):\s*['"]?(?<value>[^'";}]+)/g;
+const OPSZ_REGEX = /(?<!\w|-)--(?:icon-opsz-[\w-]+|default-icon-opsz):\s*(?<value>-?\d+)/g;
+const WGHT_REGEX = /(?<!\w|-)--(?:icon-wght-[\w-]+|default-icon-wght):\s*(?<value>-?\d+)/g;
+const GRAD_REGEX = /(?<!\w|-)--(?:icon-grad-[\w-]+|default-icon-grad):\s*(?<value>-?\d+)/g;
+const FILL_REGEX = /(?<!\w|-)--(?:icon-fill-[\w-]+|default-icon-fill):\s*(?<value>-?\d+)/g;
 // Numeric sizes (`icon-8`) set `--icon-opsz: calc(8 * 4)`, which isn't folded, not even when
 // minified.
 const OPSZ_CALC_REGEX = /(?<!\w|-)--icon-opsz:\s*calc\(\s*(?<value>\d+)\s*\*\s*4\s*\)/g;
