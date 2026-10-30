@@ -5,7 +5,7 @@ import codepoints from "./generated/codepoints";
 /**
  * Tailwind CSS v3 plugin.
  *
- * @deprecated Tailwind CSS v3 support will be removed in a future minor version. With Tailwind CSS
+ * @deprecated Tailwind CSS v3 support will be removed in the next major version. With Tailwind CSS
  * v4, use `@import "@janispritzkau/tailwindcss-material-symbols";` in your stylesheet instead.
  */
 const materialSymbols = plugin(

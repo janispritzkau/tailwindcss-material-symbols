@@ -36,7 +36,7 @@ export default defineConfig({
 });
 ```
 
-The plugin adds `@font-face` rules to every CSS module that uses icons: the full fonts on the dev server, subsets in `vite build`. It also works with SvelteKit. Nuxt, Astro and React Router haven't been tested.
+The plugin adds `@font-face` rules to every CSS module that uses icons: the full fonts on the dev server, subsets in `vite build`. It also works with SvelteKit, and builds work with Astro and React Router. Nuxt hasn't been tested.
 
 - **CSP:** builds inline fonts below `build.assetsInlineLimit` (4 KB by default, always in library mode) as `data:` URLs. Allow `data:` in `font-src`, or set `assetsInlineLimit: 0`.
 - **Shadow DOM:** browsers only use the document's fonts inside a shadow root. A document stylesheet must use the shadow root's symbols too. Tailwind finds them if the markup is in your project; otherwise add `@source "./path/to/files";`. See [`examples/vite`](https://github.com/janispritzkau/tailwindcss-material-symbols/tree/main/examples/vite).
@@ -102,14 +102,14 @@ npx @tailwindcss/cli -i src/style.css -o dist/style.css
 npx tailwindcss-material-symbols subset dist/style.css --outDir dist/fonts
 ```
 
-It writes `material-symbols-<style>.woff2` for each used style and a `material-symbols.css` with the `@font-face` rules. Load that stylesheet next to your CSS. Without file arguments it reads the CSS from stdin; `--outDir` defaults to `dist`.
+It writes `material-symbols-<style>.woff2` for each used style and a `material-symbols.css` with the `@font-face` rules. Load that stylesheet next to your CSS. Without file arguments it reads the CSS from stdin; `--outDir` defaults to `dist`. It exits with an error if the CSS uses no symbols.
 
 The subsetter is also exported as `@janispritzkau/tailwindcss-material-symbols/subset`. `subsetMaterialSymbols(css)` returns `[{ fontFamily, fileName, source }]`.
 
 ## Tailwind CSS v3 (deprecated)
 
 > [!WARNING]
-> Tailwind CSS v3 support is deprecated and will be removed in a future minor version. New features target Tailwind CSS v4 only.
+> Tailwind CSS v3 support is deprecated and will be removed in the next major version. New features target Tailwind CSS v4 only.
 
 ```js
 // tailwind.config.js
