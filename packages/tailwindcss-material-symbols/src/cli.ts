@@ -1,7 +1,7 @@
 import cac from "cac";
 import { fontFace } from "./font-face";
 import subsetMaterialSymbols from "./subset";
-import { version } from "../package.json" assert { type: "json" };
+import { version } from "../package.json" with { type: "json" };
 import { readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 
