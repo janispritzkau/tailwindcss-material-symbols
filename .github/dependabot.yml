@@ -22,10 +22,13 @@ updates:
         update-types: [minor, patch]
     # material-symbols stays ungrouped: one pull request per bump, with its own names diff.
     ignore:
-      # The dev copy builds and tests the deprecated v3 plugin (src/v3, the v3 fixtures). Tailwind
-      # v4 comes from @tailwindcss/node and the example.
+      # Bumped by hand until v3 support is removed. The workspace has it at two majors: the dev copy
+      # that builds and tests the deprecated v3 plugin (src/v3, the v3 fixtures) and v4 in the
+      # example, and Dependabot writes the v3 update into the example.
       - dependency-name: tailwindcss
-        update-types: ["version-update:semver-major"]
+      # TypeScript 7 no longer has the classic API that tsdown needs for declaration files.
+      - dependency-name: typescript
+        versions: [">=7"]
       # Matches the oldest Node version CI tests, so the types don't allow newer APIs.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
