@@ -168,7 +168,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^22.18.8
-        version: 22.18.8
+        version: 22.20.5
       git-cliff:
         specifier: ^2.14.2
         version: 2.14.2
@@ -195,13 +195,13 @@ importers:
         version: link:../../packages/tailwindcss-material-symbols
       '@tailwindcss/vite':
         specifier: ^4.3.3
-        version: 4.3.3(vite@8.3.5(@types/node@22.18.8)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1))
+        version: 4.3.3(vite@8.3.5(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1))
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
       vite:
         specifier: ^8.3.5
-        version: 8.3.5(@types/node@22.18.8)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1)
+        version: 8.3.5(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1)
 
   packages/tailwindcss-material-symbols:
     dependencies:
@@ -238,7 +238,7 @@ importers:
         version: 3.4.17
       vite:
         specifier: ^8.3.5
-        version: 8.3.5(@types/node@22.18.8)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1)
+        version: 8.3.5(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1)
 
 packages:
 
@@ -650,8 +650,8 @@ packages:
   '@types/fontkit@2.0.9':
     resolution: {integrity: sha512-qNYerFky3muCmZPq+R+B3cUDRA5OONw/oh6aGGFxx2LOBz6yu8eamKusrhkHnC6rc2fm76+G9z9QoWSB2SaQaw==}
 
-  '@types/node@22.18.8':
-    resolution: {integrity: sha512-pAZSHMiagDR7cARo/cch1f3rXy0AEXwsVsVH09FcyeJVAzCnGgmYis7P3JidtTUjyadhTeSo8TgRPswstghDaw==}
+  '@types/node@22.20.5':
+    resolution: {integrity: sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==}
 
   '@types/node@24.7.0':
     resolution: {integrity: sha512-IbKooQVqUBrlzWTi79E8Fw78l8k1RNtlDDNWsFZs7XonuQSJ8oNYfEeclhprUldXISRMLzBpILuKgPlIxm+/Yw==}
@@ -1959,18 +1959,18 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.3.3
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.3
 
-  '@tailwindcss/vite@4.3.3(vite@8.3.5(@types/node@22.18.8)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1))':
+  '@tailwindcss/vite@4.3.3(vite@8.3.5(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1))':
     dependencies:
       '@tailwindcss/node': 4.3.3
       '@tailwindcss/oxide': 4.3.3
       tailwindcss: 4.3.3
-      vite: 8.3.5(@types/node@22.18.8)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1)
+      vite: 8.3.5(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1)
 
   '@types/fontkit@2.0.9':
     dependencies:
-      '@types/node': 22.18.8
+      '@types/node': 22.20.5
 
-  '@types/node@22.18.8':
+  '@types/node@22.20.5':
     dependencies:
       undici-types: 6.21.0
 
@@ -2775,7 +2775,7 @@ snapshots:
 
   verkit@0.5.0: {}
 
-  vite@8.3.5(@types/node@22.18.8)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1):
+  vite@8.3.5(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.1):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -2783,7 +2783,7 @@ snapshots:
       rolldown: 1.2.15
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 22.18.8
+      '@types/node': 22.20.5
       esbuild: 0.28.2
       fsevents: 2.3.3
       jiti: 2.7.0
