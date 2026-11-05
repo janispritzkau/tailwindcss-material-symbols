@@ -22,6 +22,11 @@ const DEFAULT_INLINE_LIMIT = 4096;
 
 const require = createRequire(import.meta.url);
 
+/** The absolute path of a full font, with forward slashes like Vite's `server.fs.allow`. */
+function fontPath(font: string): string {
+  return require.resolve(`material-symbols/material-symbols-${font}.woff2`).replaceAll("\\", "/");
+}
+
 function isCss(id: string): boolean {
   return CSS_RE.test(id) && !NOT_CSS_QUERY_RE.test(id);
 }
@@ -86,7 +91,13 @@ export default function materialSymbols(options?: MaterialSymbolsPluginOptions):
     {
       name: "material-symbols:serve",
       apply: "serve",
-      configResolved,
+      configResolved(resolved) {
+        configResolved(resolved);
+        // The `/@fs/` font URLs aren't modules, so Vite only serves them from `server.fs.allow`. Its
+        // default allows the workspace root and pnpm's virtual store, but a custom list may not
+        // include `node_modules`. Allow exactly the font files.
+        resolved.server.fs.allow.push(...["outlined", "rounded", "sharp"].map(fontPath));
+      },
       transform(code, id) {
         if (!isCss(id)) return;
         const detection = detectUsage(code);
@@ -94,8 +105,7 @@ export default function materialSymbols(options?: MaterialSymbolsPluginOptions):
 
         let css = "";
         for (const font of detection.fonts) {
-          const path = require.resolve(`material-symbols/material-symbols-${font}.woff2`);
-          const url = `${config.base}@fs/${encodeURI(path.replaceAll("\\", "/").replace(/^\//, ""))}`;
+          const url = `${config.base}@fs/${encodeURI(fontPath(font).replace(/^\//, ""))}`;
           css += fontFace(detection.fontFamily[font], url);
         }
         // Appended, so that `@charset` and `@import` stay first and existing source maps stay valid.
