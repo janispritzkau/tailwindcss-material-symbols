@@ -4,7 +4,14 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { after, before, describe, test } from "node:test";
 import * as fontkit from "fontkit";
-import { build, createLogger, createServer, type InlineConfig, type Rollup } from "vite";
+import {
+  build,
+  createLogger,
+  createServer,
+  isFileServingAllowed,
+  type InlineConfig,
+  type Rollup,
+} from "vite";
 import materialSymbols from "../src/vite";
 
 // Builds a small app from the Tailwind v4 fixtures in `test/fixtures/v4/`:
@@ -132,6 +139,30 @@ describe("dev server", () => {
 
         const plain = await server.transformRequest("/plain.css?inline");
         assert.doesNotMatch(plain!.code, /@font-face/);
+      } finally {
+        await server.close();
+      }
+    });
+  }
+
+  // The fonts are in this repository's `node_modules`, outside the app's root.
+  for (const custom of [false, true]) {
+    test(`serves the fonts with ${custom ? "a custom" : "the default"} server.fs.allow`, async () => {
+      const allow = custom ? [root] : undefined;
+      const server = await createServer({
+        root,
+        configFile: false,
+        logLevel: "silent",
+        plugins: [materialSymbols()],
+        server: { middlewareMode: true, ws: false, fs: { allow } },
+      });
+      try {
+        const icons = await server.transformRequest("/icons.css?inline");
+        const url = decodeURI(icons!.code.match(/url\(\\"(\/@fs\/[^"\\]+)\\"\)/)![1]!);
+        assert.ok(isFileServingAllowed(url, server));
+        assert.ok(
+          !isFileServingAllowed(`/@fs${resolve(import.meta.dirname, "../package.json")}`, server),
+        );
       } finally {
         await server.close();
       }

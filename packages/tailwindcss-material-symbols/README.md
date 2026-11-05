@@ -36,7 +36,7 @@ export default defineConfig({
 });
 ```
 
-The plugin adds `@font-face` rules to every CSS module that uses icons: the full fonts on the dev server, subsets in `vite build`. It also works with SvelteKit, and builds work with Astro and React Router. Nuxt hasn't been tested.
+The plugin adds `@font-face` rules to every CSS module that uses icons: the full fonts on the dev server, subsets in `vite build`. It works on the dev server and in builds of Astro, Nuxt, React Router and SvelteKit. In Astro and Nuxt, add it to `vite.plugins` in the framework's config.
 
 - **CSP:** builds inline fonts below `build.assetsInlineLimit` (4 KB by default, always in library mode) as `data:` URLs. Allow `data:` in `font-src`, or set `assetsInlineLimit: 0`.
 - **Shadow DOM:** browsers only use the document's fonts inside a shadow root. A document stylesheet must use the shadow root's symbols too. Tailwind finds them if the markup is in your project; otherwise add `@source "./path/to/files";`. See [`examples/vite`](https://github.com/janispritzkau/tailwindcss-material-symbols/tree/main/examples/vite).
