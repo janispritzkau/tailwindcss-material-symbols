@@ -3,7 +3,7 @@
 All notable changes to `@janispritzkau/tailwindcss-material-symbols` are documented in this file.
 The changelog is generated from the commit history with [git-cliff](https://git-cliff.org).
 
-## [1.0.0-rc.0](https://github.com/janispritzkau/tailwindcss-material-symbols/compare/v0.0.10...v1.0.0-rc.0) - 2026-10-29
+## [1.0.0-rc.1](https://github.com/janispritzkau/tailwindcss-material-symbols/compare/v0.0.10...v1.0.0-rc.1) - 2026-11-05
 
 ### Features
 
@@ -15,6 +15,9 @@ The changelog is generated from the commit history with [git-cliff](https://git-
 - **changelog:** Flag breaking changes in the generated changelog (#47) ([f642cb3](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/f642cb3a6e2f20018b3bbf9c25a17ad18d0d173d))
 - Keep .js and .d.ts output names with tsdown 0.23 (#54) ([dfffe6a](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/dfffe6acee8598cc0a9c966e6f149d7f6fc7ae1a))
 - Resolve the ./v3 export from tailwind.config.js under Tailwind v3 (#55) ([6760e33](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/6760e33c49ed91ca86eadc12a09556f4a7c81551))
+- **BREAKING:** Subset literal theme defaults, remove broken font stylesheets (#64) ([6526230](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/6526230df0ffddbffb096227345369c80f816333))
+- Don't ship unused default fonts and axes (#71) ([b15fe4e](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/b15fe4e205c5aff12eea00a4aaa4568c6d1e84f2))
+- **vite:** Serve the dev fonts with a custom server.fs.allow ([f71cd42](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/f71cd42e3e1fc965c7046252eb1b055c3ca57f00))
 
 ### Refactoring
 
@@ -23,6 +26,7 @@ The changelog is generated from the commit history with [git-cliff](https://git-
 ### Documentation
 
 - Root README as a pointer, shorter package README and CONTRIBUTING (#42) ([afe06ec](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/afe06ec9b7ee6d3fabd114cf82773651902cc8ef))
+- List the frameworks verified in dev and builds ([5cd9a0a](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/5cd9a0a64a9a47574413189f055aa52afda0e772))
 
 ### Miscellaneous
 
@@ -34,6 +38,7 @@ The changelog is generated from the commit history with [git-cliff](https://git-
 - **deps:** Bump subset-font from 2.4.0 to 2.9.0 (#49) ([43474bd](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/43474bd4f1501602c8f808068f86c985d0a31cfd))
 - **dependabot:** Ignore major bumps of tailwindcss and @types/node (#56) ([37a39e7](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/37a39e7e92a8cd302ad0513b68ca488e839b1269))
 - **release:** Push and open the release pull request as a GitHub App (#60) ([dea0eae](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/dea0eae8f9ef94ada3bb8fb98a9c220fc1fa00c0))
+- **dependabot:** Ignore tailwindcss and TypeScript 7 (#61) ([17a5aba](https://github.com/janispritzkau/tailwindcss-material-symbols/commit/17a5abab01be6b93da61fe0b1fa1e06bbf8d7dbe))
 
 ### Test
 
