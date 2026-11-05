@@ -49,6 +49,11 @@ const V3: Fixture[] = [
       },
     },
   },
+  {
+    name: "fractional-defaults",
+    classes: ["icon", "icon-symbol-home"],
+    theme: { extend: { icon: { fill: { DEFAULT: "0.5" }, grad: { DEFAULT: "-25" } } } },
+  },
 ];
 
 const V4: Fixture[] = [
@@ -71,6 +76,15 @@ const V4: Fixture[] = [
   --default-icon-wght: 300;
   --default-icon-fill: 1;
   --default-icon-grad: 200;
+}`,
+  },
+  {
+    name: "fractional-defaults",
+    classes: ["icon", "icon-symbol-home"],
+    css: `@theme {
+  --default-icon-fill: 0.5;
+  --default-icon-grad: -25;
+  --default-icon-wght: 350.5;
 }`,
   },
 ];

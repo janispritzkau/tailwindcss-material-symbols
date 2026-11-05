@@ -54,6 +54,11 @@ test("pins an axis to its configured default, not to 0", async () => {
   const [filled] = await subsetMaterialSymbols(css, { defaults: { fill: 1 } });
   assert.deepEqual((fontkit.create(filled!.source) as fontkit.Font).variationAxes, {});
   assert.ok(!unfilled!.source.equals(filled!.source));
+
+  const [graded] = await subsetMaterialSymbols(css, { defaults: { grad: 200 } });
+  assert.deepEqual((fontkit.create(graded!.source) as fontkit.Font).variationAxes, {});
+  assert.ok(!unfilled!.source.equals(graded!.source));
+  assert.ok(!filled!.source.equals(graded!.source));
 });
 
 test("detects the symbols in unminified Tailwind v4 output", async () => {
