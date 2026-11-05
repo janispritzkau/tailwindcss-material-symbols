@@ -21,6 +21,12 @@ function parseSymbolValue(value: string): string | undefined {
   return String.fromCodePoint(codepoint);
 }
 
+/**
+ * A CSS number in a `value` group: integer or fractional, as minifiers write it (`0.5` or `.5`).
+ * Exponents aren't matched.
+ */
+export const NUMBER = String.raw`-?(?:\d+(?:\.\d+)?|\.\d+)`;
+
 /** Returns the numeric `value` group of every match. */
 export function matchNumbers(css: string, regex: RegExp): number[] {
   return Array.from(css.matchAll(regex), (m) => Number(m.groups!.value!));

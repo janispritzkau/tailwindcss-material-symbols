@@ -1,6 +1,6 @@
 import cac from "cac";
 import { fontFace } from "./font-face";
-import subsetMaterialSymbols from "./subset";
+import { detectWithChars, subsetDetected } from "./subset";
 import { version } from "../package.json" with { type: "json" };
 import { readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -22,9 +22,21 @@ cli
       inputCss = readFileSync(0, "utf-8");
     }
     for (const file of input) {
-      inputCss += readFileSync(file, "utf-8") + "\n";
+      try {
+        inputCss += readFileSync(file, "utf-8") + "\n";
+      } catch (error) {
+        console.error(`Could not read input file: ${(error as Error).message}`);
+        process.exit(1);
+      }
     }
-    const fonts = await subsetMaterialSymbols(inputCss);
+    const detection = detectWithChars(inputCss);
+    if (detection.symbols.size === 0) {
+      console.error(
+        "No Material Symbols found in the input. Pass the CSS that Tailwind compiled, not its source.",
+      );
+      process.exit(1);
+    }
+    const fonts = await subsetDetected(detection);
     const outDir = options.outDir ?? "dist";
     await mkdir(outDir, { recursive: true });
     let css = "";

@@ -38,6 +38,12 @@ const EXPECTED = {
       fonts: ["outlined", "rounded"],
       wght: { min: 300, max: 400 },
     },
+    // `fill.DEFAULT` = 0.5 (minified `.5`), `grad.DEFAULT` = -25
+    "fractional-defaults": {
+      ...DEFAULT,
+      grad: { min: -25, max: 0 },
+      fill: { min: 0, max: 0.5 },
+    },
   },
   v4: {
     ...SHARED,
@@ -49,6 +55,23 @@ const EXPECTED = {
       opsz: { min: 24, max: 48 },
       wght: { min: 400, max: 650 },
       symbols: ["2d_2", "home"],
+    },
+    // `--default-icon-*` with literal values instead of `var()` references
+    "literal-defaults": {
+      ...DEFAULT,
+      fonts: ["outlined", "rounded"],
+      opsz: { min: 24, max: 48 },
+      wght: { min: 300, max: 400 },
+      grad: { min: 0, max: 200 },
+      fill: { min: 0, max: 1 },
+    },
+    // `--default-icon-fill: 0.5` (minified `.5`), `--default-icon-grad: -25`,
+    // `--default-icon-wght: 350.5`
+    "fractional-defaults": {
+      ...DEFAULT,
+      wght: { min: 350.5, max: 400 },
+      grad: { min: -25, max: 0 },
+      fill: { min: 0, max: 0.5 },
     },
   },
 } satisfies Record<"v3" | "v4", Record<string, Detection>>;

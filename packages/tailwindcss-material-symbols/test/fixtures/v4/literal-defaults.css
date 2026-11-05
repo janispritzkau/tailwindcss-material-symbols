@@ -1,0 +1,38 @@
+/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+@layer theme {
+  :root, :host {
+    --spacing: 0.25rem;
+    --icon-symbol-home: "\e9b2";
+    --icon-size-md: calc(var(--spacing) * 6);
+    --default-icon-font: "Material Symbols Rounded";
+    --default-icon-size: var(--icon-size-md);
+    --default-icon-opsz: 48;
+    --default-icon-wght: 300;
+    --default-icon-fill: 1;
+    --default-icon-grad: 200;
+  }
+}
+@layer utilities {
+  .icon {
+    box-sizing: content-box;
+    direction: ltr;
+    display: inline-block;
+    font-family: var(--default-icon-font);
+    font-size: var(--default-icon-size);
+    font-style: normal;
+    line-height: 1;
+    text-rendering: optimizeLegibility;
+    user-select: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "opsz" var(--icon-opsz, var(--default-icon-opsz)), "wght" var(--icon-wght, var(--default-icon-wght)), "FILL" var(--icon-fill, var(--default-icon-fill)), "GRAD" var(--icon-grad, var(--default-icon-grad));
+    --tw-content: var(--icon-symbol);
+    &::before {
+      content: var(--icon-symbol);
+    }
+  }
+  .icon-symbol-home {
+    --icon-symbol: var(--icon-symbol-home);
+  }
+}

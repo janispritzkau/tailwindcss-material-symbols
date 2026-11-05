@@ -23,38 +23,33 @@
   "author": "Janis Pritzkau <janispritzkau@gmail.com>",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "bin": {
     "tailwindcss-material-symbols": "./bin/tailwindcss-material-symbols.js"
   },
   "exports": {
     ".": {
+      "types": "./dist/v3/index.d.ts",
       "node": "./dist/v3/index.js",
-      "style": "./src/index.css",
-      "types": "./dist/v3/index.d.ts"
+      "style": "./src/index.css"
     },
     "./v3": {
       "types": "./dist/v3/index.d.ts",
       "default": "./dist/v3/index.js"
     },
     "./subset": {
-      "import": "./dist/subset.js",
-      "types": "./dist/subset.d.ts"
+      "types": "./dist/subset.d.ts",
+      "import": "./dist/subset.js"
     },
     "./vite": {
-      "import": "./dist/vite.js",
-      "types": "./dist/vite.d.ts"
-    },
-    "./full.css": "./full.css",
-    "./outlined.css": "./outlined.css",
-    "./rounded.css": "./rounded.css",
-    "./sharp.css": "./sharp.css"
+      "types": "./dist/vite.d.ts",
+      "import": "./dist/vite.js"
+    }
   },
   "files": [
     "dist",
-    "full.css",
-    "outlined.css",
-    "rounded.css",
-    "sharp.css",
     "src/index.css",
     "src/generated/codepoints.css"
   ],
