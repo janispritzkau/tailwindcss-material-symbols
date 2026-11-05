@@ -7,6 +7,11 @@ import { detectV4 } from "./detect-v4";
 
 export interface SubsetOptions {
   fontFamily?: Record<"outlined" | "rounded" | "sharp", string>;
+  /**
+   * The font style and axis values for CSS that doesn't show them. Tailwind output has the
+   * defaults of the `icon` utility, so these are only used for a style or axis that the CSS has
+   * no value for, for example in CSS without the `icon` utility.
+   */
   defaults?: {
     font?: "outlined" | "rounded" | "sharp";
     opsz?: number;
@@ -92,11 +97,15 @@ export function detectWithChars(css: string, options?: SubsetOptions): Detection
   const usedGrad = new Set(matches.flatMap((m) => m.grad));
   const usedFill = new Set(matches.flatMap((m) => m.fill));
 
-  usedFont.add(defaults.font);
-  usedOpsz.add(defaults.opsz);
-  usedWght.add(defaults.wght);
-  usedGrad.add(defaults.grad);
-  usedFill.add(defaults.fill);
+  // The CSS has the defaults of the `icon` utility: v4 output through the `--default-icon-*`
+  // variables and the theme variables they refer to, v3 output through the `font-family` and the
+  // `var()` fallbacks of `.icon`. So the defaults are only added if a value is missing, and not
+  // always, which would ship a style or axis range that nothing uses.
+  if (usedFont.size == 0) usedFont.add(defaults.font);
+  if (usedOpsz.size == 0) usedOpsz.add(defaults.opsz);
+  if (usedWght.size == 0) usedWght.add(defaults.wght);
+  if (usedGrad.size == 0) usedGrad.add(defaults.grad);
+  if (usedFill.size == 0) usedFill.add(defaults.fill);
 
   return {
     fontFamily,

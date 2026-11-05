@@ -29,21 +29,26 @@ const SHARED: Record<string, Detection> = {
   "five-digit-codepoint": { ...DEFAULT, symbols: ["2d_2", "home"] },
 };
 
+// The default fill is 1, and `icon-fill` sets it on every icon: the FILL axis is pinned to 1.
+const FILL_DEFAULT: Detection = { ...DEFAULT, fill: { min: 1, max: 1 } };
+
 const EXPECTED = {
   v3: {
     ...SHARED,
     // `theme.extend.icon.font.DEFAULT` = Rounded, `wght.DEFAULT` = 300
     "custom-defaults": {
       ...DEFAULT,
-      fonts: ["outlined", "rounded"],
-      wght: { min: 300, max: 400 },
+      fonts: ["rounded"],
+      wght: { min: 300, max: 300 },
     },
     // `fill.DEFAULT` = 0.5 (minified `.5`), `grad.DEFAULT` = -25
     "fractional-defaults": {
       ...DEFAULT,
-      grad: { min: -25, max: 0 },
-      fill: { min: 0, max: 0.5 },
+      grad: { min: -25, max: -25 },
+      fill: { min: 0.5, max: 0.5 },
     },
+    // `theme.extend.icon.fill.DEFAULT` = 1
+    "fill-default": FILL_DEFAULT,
   },
   v4: {
     ...SHARED,
@@ -51,7 +56,7 @@ const EXPECTED = {
     // `--icon-wght-heavy: 650`
     "custom-theme": {
       ...DEFAULT,
-      fonts: ["outlined", "rounded"],
+      fonts: ["rounded"],
       opsz: { min: 24, max: 48 },
       wght: { min: 400, max: 650 },
       symbols: ["2d_2", "home"],
@@ -59,20 +64,22 @@ const EXPECTED = {
     // `--default-icon-*` with literal values instead of `var()` references
     "literal-defaults": {
       ...DEFAULT,
-      fonts: ["outlined", "rounded"],
-      opsz: { min: 24, max: 48 },
-      wght: { min: 300, max: 400 },
-      grad: { min: 0, max: 200 },
-      fill: { min: 0, max: 1 },
+      fonts: ["rounded"],
+      opsz: { min: 48, max: 48 },
+      wght: { min: 300, max: 300 },
+      grad: { min: 200, max: 200 },
+      fill: { min: 1, max: 1 },
     },
     // `--default-icon-fill: 0.5` (minified `.5`), `--default-icon-grad: -25`,
     // `--default-icon-wght: 350.5`
     "fractional-defaults": {
       ...DEFAULT,
-      wght: { min: 350.5, max: 400 },
-      grad: { min: -25, max: 0 },
-      fill: { min: 0, max: 0.5 },
+      wght: { min: 350.5, max: 350.5 },
+      grad: { min: -25, max: -25 },
+      fill: { min: 0.5, max: 0.5 },
     },
+    // `--default-icon-fill: var(--icon-fill-fill)`
+    "fill-default": FILL_DEFAULT,
   },
 } satisfies Record<"v3" | "v4", Record<string, Detection>>;
 
@@ -106,3 +113,24 @@ for (const [version, fixtures] of Object.entries(EXPECTED)) {
     }
   });
 }
+
+describe("defaults option", () => {
+  const symbolsOnly = `:root { --icon-symbol-home: "\\e9b2"; }`;
+
+  test("is used for the styles and axes that the CSS has no value for", () => {
+    assert.deepEqual(detect(symbolsOnly), DEFAULT);
+    assert.deepEqual(detect(symbolsOnly, { defaults: { font: "sharp", wght: 300, fill: 1 } }), {
+      ...DEFAULT,
+      fonts: ["sharp"],
+      wght: { min: 300, max: 300 },
+      fill: { min: 1, max: 1 },
+    });
+  });
+
+  test("isn't added to the values in the CSS", () => {
+    const defaults = { font: "sharp", opsz: 48, wght: 300, grad: 200, fill: 1 } as const;
+    for (const version of ["v3", "v4"]) {
+      assert.deepEqual(detect(readFixture(version, "default.min.css"), { defaults }), DEFAULT);
+    }
+  });
+});
