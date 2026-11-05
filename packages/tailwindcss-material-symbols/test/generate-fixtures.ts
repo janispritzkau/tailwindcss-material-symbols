@@ -54,6 +54,11 @@ const V3: Fixture[] = [
     classes: ["icon", "icon-symbol-home"],
     theme: { extend: { icon: { fill: { DEFAULT: "0.5" }, grad: { DEFAULT: "-25" } } } },
   },
+  {
+    name: "fill-default",
+    classes: ["icon", "icon-fill", "icon-symbol-home"],
+    theme: { extend: { icon: { fill: { DEFAULT: "1" } } } },
+  },
 ];
 
 const V4: Fixture[] = [
@@ -85,6 +90,13 @@ const V4: Fixture[] = [
   --default-icon-fill: 0.5;
   --default-icon-grad: -25;
   --default-icon-wght: 350.5;
+}`,
+  },
+  {
+    name: "fill-default",
+    classes: ["icon", "icon-fill", "icon-symbol-home"],
+    css: `@theme {
+  --default-icon-fill: var(--icon-fill-fill);
 }`,
   },
 ];
