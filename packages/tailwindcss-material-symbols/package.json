@@ -78,7 +78,7 @@
     "@types/fontkit": "^2.0.9",
     "@types/subset-font": "^2.3.0",
     "cac": "^7.1.0",
-    "fontkit": "^2.0.4",
+    "fontkit": "^3.0.0",
     "lightningcss": "^1.33.0",
     "postcss": "^8.5.32",
     "tailwindcss": "^3.4.17",
