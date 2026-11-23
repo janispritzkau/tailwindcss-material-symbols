@@ -1,8 +1,9 @@
 name: Publish Package
 
 # Publishes a release in one of two cases:
-# - A push to main that bumps the version and has no tag yet. That's the merge of the pull request
-#   that release.yml opens. The workflow creates the tag together with the GitHub release.
+# - A push to main that changes the version in package.json to one without a tag yet. That's the
+#   merge of the pull request that release.yml opens, whatever the merge method. The workflow
+#   creates the tag together with the GitHub release.
 # - A pushed `v*` tag, for releases that are tagged by hand.
 
 on:
@@ -24,17 +25,29 @@ jobs:
       tag: ${{ steps.detect.outputs.tag }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # The commit before the push, to compare the version with.
+          fetch-depth: 0
       - id: detect
+        env:
+          BEFORE: ${{ github.event.before }}
+          PACKAGE_JSON: packages/tailwindcss-material-symbols/package.json
         run: |
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
             TAG="$GITHUB_REF_NAME"
             PUBLISH=true
           else
-            VERSION=$(node -p 'require("./packages/tailwindcss-material-symbols/package.json").version')
+            VERSION=$(jq -r .version "$PACKAGE_JSON")
             TAG="v$VERSION"
-            SUBJECT=$(git log -1 --format=%s)
-            # A bump commit whose version has no tag yet. Other pushes to main don't publish.
-            if [[ "$SUBJECT" == "chore: bump version to "* ]] && [[ -z "$(git ls-remote --tags origin "refs/tags/$TAG")" ]]; then
+            # Compares with the state before the push rather than reading the commit subject, so a
+            # merge commit, a squash or a rebase of the release pull request all publish.
+            if [[ -z "$BEFORE" || "$BEFORE" =~ ^0+$ ]] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+              BEFORE=$(git rev-parse HEAD^)
+            fi
+            PREVIOUS=$(git show "$BEFORE:$PACKAGE_JSON" | jq -r .version)
+            echo "version: $PREVIOUS before the push, $VERSION now"
+            # A changed version without a tag. Other pushes to main don't publish.
+            if [[ "$VERSION" != "$PREVIOUS" ]] && [[ -z "$(git ls-remote --tags origin "refs/tags/$TAG")" ]]; then
               PUBLISH=true
             else
               PUBLISH=false
